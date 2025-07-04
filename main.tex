@@ -268,7 +268,7 @@ information, potentially serving as a foundation for more
 trustworthy, contextual safety mechanisms. We discuss this option in
 \cref{section:risk-classification}.
 
-\section{Access Controls Address the Dual-Use Dilemma}
+\section{Access Controls as a Feasible Solution}
 \label{section:access-controls}
 
 In the previous section, we established that current safety systems
@@ -355,13 +355,14 @@ required; (2) For borderline classifications, continued generation
 with enhanced logging and post-processing review; (3) For verified
 users, seamless access with background logging for audit purposes.
 
+\subsection{Analysis of Feasibility}
+
 \textbf{False positives} might be a problem, especially in early
 implementations of the system, increasing friction for users. This
 friction might necessitate external coordination to encourage
 adoption across the industry.
 
-\section{Classifying Model Outputs into Risk Categories with Gradient
-Routing} \label{section:risk-classification}
+\section{Implementing Risk Classification} \label{section:risk-classification}
 
 A core requirement of the verification-based access control system
 described in \cref{section:access-controls} is being able to reliably
@@ -456,7 +457,20 @@ research into adaptation of gradient routing for fine-tuning
 scenarios. Despite these challenges, the approach offers promising
 theoretical properties that warrant experimental investigation.
 
-\section{Conclusion and Outlook}
+\section{Limitations and Tradeoffs}
+
+Our framework presents inevitable trade-offs --- privacy concerns,
+access inequities, and increased friction through false positives ---
+but these can be addressed through improved verification mechanisms
+and continuously improving classification systems. Future work needs
+to determine appropriate verification levels and risk categories,
+develop accurate classifiers with low false positive rates, and align
+with emerging AI regulations through stakeholder engagement. We
+discuss some of these challenges in
+\cref{section:access-controls-future-work} and at the end of
+\cref{section:gradient-routing}.
+
+\section{Conclusion}
 
 We argued that safety systems that do not utilize contextual
 information face a lose-lose \emph{dual-use dilemma}: they will
@@ -469,17 +483,6 @@ context). We also proposed a novel technical solution for classifying
 outputs into risk categories based on gradient routing that has the
 potential to resolve the efficiency-robustness trade-off of
 post-processing methods.
-
-Our framework presents inevitable trade-offs --- privacy concerns,
-access inequities, and increased friction through false positives ---
-but these can be addressed through improved verification mechanisms
-and continuously improving classification systems. Future work needs
-to determine appropriate verification levels and risk categories,
-develop accurate classifiers with low false positive rates, and align
-with emerging AI regulations through stakeholder engagement. We
-discuss some of these challenges in
-\cref{section:access-controls-future-work} and at the end of
-\cref{section:gradient-routing}.
 
 Beyond addressing specific technical challenges, our framework
 represents a promising governance shift from working with model-level
