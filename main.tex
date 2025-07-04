@@ -172,7 +172,7 @@ content itself, making it easy for adversaries to fabricate.
 In this paper, we argue that informative, hard-to-fabricate
 real-world context could be obtained using user-level verifications
 such as institutional affiliation, or know-your-customer checks. We
-then address address the dual-use dilemma with two contributions:
+then address the dual-use dilemma with two contributions:
 (1) We show how this type of context could be used jointly with
 content analysis in a safety system based on access controls
 \cite{butler1974}. First, generated content would be classified into
@@ -226,10 +226,10 @@ eliminate the model's ability to generate harmful content while
 preserving other capabilities.
 
 Unlearning faces significant technical challenges even for preventing
-clearly harmful behaviors. As noted by
+clearly harmful behaviours. As noted by
 \citet{barez2025openproblemsmachineunlearning}, capabilities are hard
 to define, hard to link to specific data points, and hard to remove
-without side-effects. Many unlearning approaches mask rather than
+without side effects. Many unlearning approaches mask rather than
 truly remove the targeted knowledge
 \cite{deeb2025unlearningmethodsremoveinformation}. Moreover, even
 nascent robust unlearning methods
@@ -288,7 +288,7 @@ In the previous section, we established that current safety systems
 do not address the dual-use dilemma because they either do not
 consider the real-world context of the request, or they obtain the
 context directly from the request's content, making them vulnerable
-to adversarial attacks. In this section, we propose an alternative
+to adversarial attacks. In this section, we present an alternative
 safety framework based on access controls that directly addresses the
 dual-use dilemma, and discuss some of its practical considerations.
 
@@ -387,7 +387,7 @@ currently available and one theoretical --- and discuss their trade-offs.
 \subsection{Post-Processing}
 
 As discussed in \cref{section:current-methods}, current systems
-already rely on post-processing classifiers that analyze outputs
+already rely on post-processing classifiers that analyse outputs
 before delivery to users.
 These could be adapted for content classification into risk
 categories in an access control system.
@@ -396,7 +396,7 @@ advanced virology topics and, if detected, could trigger verification
 of user permissions before delivering the output.
 
 The key advantage of post-processing systems is modularity, as they
-can be developed and updated independently from the generation models
+can be developed and updated independently of the generation models
 they oversee.
 However, they face a trade-off between usability (latency) and safety
 \cite{kumar2025freelunchguardrails}: prioritizing low latency can
@@ -412,9 +412,8 @@ output-based access control.
 \subsection{Gradient Routing} \label{section:gradient-routing}
 
 To address the capability gap problem in post-processing methods, we
-propose adapting gradient routing
-\cite{cloud2024gradientroutingmaskinggradients} for classifying model
-outputs into risk categories.
+detail how gradient routing \cite{cloud2024gradientroutingmaskinggradients}
+could be adapted to classify model outputs into risk categories.
 Our adaptation represents a theoretical direction for integrating
 risk category detection directly into model architecture.
 This approach can be combined with post-processing methods and offers
@@ -438,7 +437,7 @@ activates the virology gate, engaging the expert but also triggering
 the verification system. If the user lacks appropriate credentials,
 the system takes the appropriate response --- here, halting the generation.
 
-This approach effectively eliminates the efficiency-capability
+This approach eliminates the efficiency-capability
 trade-off inherent in post-processing methods: the risk category
 classifier is embedded within the larger model, so there is no
 capability gap, and because the gated module is small and integrated
@@ -449,7 +448,7 @@ Even more crucially, during standard training, the model is naturally
 incentivized to identify risk category information in inputs and
 surface this in its representation space, as this is directly linked
 to enabling the appropriate specialized module at appropriate times.
-This approach differs fundamentally from post-hoc methods like
+This approach differs fundamentally from post hoc methods like
 probing or sparse autoencoders
 \cite{cunningham2023sparseautoencodershighlyinterpretable}, which
 cannot guarantee the model actually operates with the concepts they
@@ -501,6 +500,10 @@ abstractions and binary capability restrictions toward more granular
 user-level access controls. This offers a practical pathway for
 regulating increasingly powerful AI systems through stratified access
 rather than blanket capability limitations.
+
+\section{Acknowledgements}
+
+We thank Dennis Akar, Jakub Kryś, and Kola Ayonrinde for their feedback on a draft of this paper. We thank Joseph Miller, Alex Cloud, Alex Turner, and Jacob Goldman-Wetzler for discussions on gradient routing.
 
 \bibliography{references}
 \bibliographystyle{packages/icml2025}

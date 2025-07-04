@@ -83,7 +83,7 @@
 %%%%%%%%%%%%%%%%%%%%
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{icml2025}[2023/11/23 v2.0 ICML Conference Style File]
+\ProvidesPackage{packages/icml2025}[2023/11/23 v2.0 ICML Conference Style File]
 
 % Before 2018, \usepackage{times} was in the example TeX, but inevitably
 % not everybody did it.
@@ -120,7 +120,7 @@
 $\mathit{42}^{nd}$ International Conference on Machine Learning},
 Vancouver, Canada. PMLR 267, 2025.
 Copyright 2025 by the author(s).}
-\renewcommand{\ICML@appearing}{\textit{Preliminary work. Under review.}}
+% \renewcommand{\ICML@appearing}{\textit{Preliminary work. Under review.}}
 
 %%%%%%%%%%%%%%%%%%%%
 % This string is printed at the bottom of the page for the draft/under
@@ -532,6 +532,7 @@ the offending package(s), or layout-changing commands and try again.
 
 \newcounter{@affilnum}
 \newcommand{\printAffiliationsAndNotice}[1]{%
+\begin{NoHyper}
 \stepcounter{@affiliationcounter}%
 {\let\thefootnote\relax\footnotetext{\hspace*{-\footnotesep}\ifdefined\isaccepted #1\fi%
 \forloop{@affilnum}{1}{\value{@affilnum} < \value{@affiliationcounter}}{
@@ -551,6 +552,7 @@ Correspondence to: \icmlcorrespondingauthor@text.
 \Notice@String
 }
 }
+\end{NoHyper}
 }
 
 %\makeatother
