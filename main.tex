@@ -108,27 +108,14 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-  AI safety systems face a dual-use dilemma. Since the same request
-  can be either harmless or harmful depending on who made it and why,
-  if the system makes decisions based solely on the request's
-  content, it will refuse some legitimate queries and let pass harmful ones.
-  To address this, we propose a conceptual access control framework,
-  based on verified user credentials (such as institutional
-  affiliation) and classifiers that assign model outputs to risk
-  categories (such as advanced virology). The system permits
-  responses only when the user's verified credentials match the
-  category's requirements. For implementation of the model output
-  classifiers, we introduce a theoretical approach utilizing small,
-  gated expert modules integrated into the generator model, trained
-  with gradient routing, that enable efficient risk detection without
-  the capability gap problems of external monitors. While open
-  questions remain about the verification mechanisms, risk
-  categories, and the technical implementation, our framework makes
-  the first step toward enabling granular governance of AI
-  capabilities: verified users gain access to specialized knowledge
-  without arbitrary restrictions, while adversaries are blocked from
-  it. This contextual approach reconciles model utility with robust
-  safety, addressing the dual-use dilemma.
+  AI safety systems face a dual-use dilemma.
+  The same request can be either harmless or harmful depending on who made it and why.
+  Thus, if the system makes decisions based solely on the request's content, it will refuse some legitimate queries and let pass harmful ones.
+  To address this, we propose a conceptual access control framework, based on verified user credentials (such as institutional affiliation) and classifiers that assign model outputs to risk categories (such as advanced virology).
+  The system permits responses only when the user's verified credentials match the category's requirements.
+  For implementation of the model output classifiers, we introduce a theoretical approach utilizing small, gated expert modules integrated into the generator model, trained with gradient routing, that enable efficient risk detection without the capability gap problems of external monitors.
+  While open questions remain about the verification mechanisms, risk categories, and the technical implementation, our framework makes the first step toward enabling granular governance of AI capabilities: verified users gain access to specialized knowledge without arbitrary restrictions, while adversaries are blocked from it.
+  This contextual approach reconciles model utility with robust safety, addressing the dual-use dilemma.
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
