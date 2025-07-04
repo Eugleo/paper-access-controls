@@ -6,7 +6,11 @@
     - Dilemma: when faced with a grey-zone question, do we reject it or do we answer it?
 - [ ] Differentiate better between safety training methods and post-processing attacks
     - Both could be trained to work with context, but with post-processing this would be faster to achieve, more transparent, and easier to update.
-- [ ] Maybe add a spectrum diagram to better show the different request types and what exactly we gain by introducing the access controls.
+- [ ] Maybe change the framing slightly to talk more about government and industry incentives: both want more granularity to enable both more capabilities and more safety at the same time!
+
+> (10) so much rests on figure 1, it'd be great to have a more detailed figure describing how you want to embed risk tiering into models in the appendix. 
+
+- [ ] Maybe add a diagram: x-axis apparent harmfulness, y-axis actual harmfulness (binary). Dots=requests are a diagonal continuous cluster. Ideal safety method: cuts horizontally. Non-contextual safety methods: cut vertically. Access controls: not ideal, but at least diagonal. Can show gray zone, can show dark-gray. Decomposition attacks move one dot from the right to many dots on the left of some veritical content-based safety method. Context-faking attacks move the dot down; 
 
 # Reviewer Notes
 
@@ -52,11 +56,6 @@ Expand discussion in Section 5 (System Limitations and Tradeoffs):
 - [ ] Add governance and equity discussion addressing institutional bias, alternative credentialing pathways, and oversight mechanisms (~0.3 pages)
 
 - [ ] Add privacy discussion covering data retention, anonymization, and surveillance concerns (~0.2 pages)
-
-> (10) so much rests on figure 1, it'd be great to have a more detailed figure describing how you want to embed risk tiering into models in the appendix. 
-
-- [ ] Modify Figure 1 to show general access control framework rather than gradient routing specifics (since Section 5 will present multiple technical options)
-
 
 > If the authors were to instead place the central focus on gradient routing as a means to achieve access controls, it would be especially interesting to show some kind of validation or provide arguments that such techniques could effectively modularize the relevant level of technical sophistication in a domain - e.g., achieve routing of only advanced virology, but not basic virology. 
 
