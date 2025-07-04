@@ -194,6 +194,8 @@ We evaluate three AI safety approaches to see how sensitive they are
 to contextual information, and whether their sources of real-world
 context are trustworthy --- that is, hard to manipulate by an adversary.
 
+% TODO Point to atual numbers of how big of a problem this is (recent paper)
+
 But first, to illustrate the need for context, consider decomposition
 attacks \cite{glukhov2023llmcensorshipmachinelearning,
 glukhov2024breachthousandleaksunsafe}: transforming a clearly harmful
@@ -204,7 +206,7 @@ antibodies?'' from \cref{figure:main}. Here, the attacker exploits
 the dual-use dilemma, and the fact that model providers can't refuse
 grey zone requests to preserve model utility.
 
-\subsection{Unlearning}
+\subsection{Unlearning: Non-Contextual Removal of Concepts}
 
 Unlearning methods aim to remove specific knowledge, concepts, or
 capabilities from a model after training
@@ -220,53 +222,27 @@ without side effects. Many unlearning approaches mask rather than
 truly remove the targeted knowledge
 \cite{deeb2025unlearningmethodsremoveinformation}. Moreover, even
 nascent robust unlearning methods
-\cite{cloud2024gradientroutingmaskinggradients} are not contextual,
+\cite{cloud2024gradientroutingmaskinggradients,lee2025distillationrobustifiesunlearning} are not contextual,
 and thus don't address the dual-use dilemma without additional assumptions.
 
-\subsection{Safety Training}
+\subsection{Safety Training: The Model Reacts to Context}
 
 Safety training methods modify the model's training process to align
-its outputs with human preferences. This category includes safety
-pre-training \cite{maini2025safetypretraininggenerationsafe}, RLHF
-\cite{christiano2023deepreinforcementlearninghuman}, and safety finetuning.
+its outputs with human preferences.
+This category includes safety pre-training \cite{maini2025safetypretraininggenerationsafe}, RLHF \cite{christiano2023deepreinforcementlearninghuman}, and safety finetuning.
 
-Unlike unlearning, these methods are contextual. They don't remove
-capabilities entirely but train the model to selectively deploy them
-based on, among other things, the perceived legitimacy and
-harmlessness of the request.
+Unlike unlearning, these methods are contextual.
+They don't remove capabilities entirely but train the model to selectively deploy them based on, among other things, the perceived legitimacy and harmlessness of the request.
+However, these qualities are entirely inferred from content supplied by the user, such as the request content, the chat history, or the model's memories about past conversations.
+It should be no surprise, then, that models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to in-chat context, e.g. through multi-round escalation \cite{russinovich2025greatwritearticlethat}.
+Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey zone requests, and thus cannot robustly address the dual-use dilemma.
 
-However, the real-world context comes from an untrustworthy source
---- it is entirely (implicitly) inferred from the request's content
-which is supplied by the user. This constrains the model's ability to
-make truly informed decisions about grey zone requests, making it
-susceptible to attacks that fabricate context
-\cite{zeng2024johnnypersuadellmsjailbreak} or diminish the model's
-context-sensitivity through multi-round escalation
-\cite{russinovich2025greatwritearticlethat}.
-Thus, despite offering improved contextuality over unlearning,
-current safety training methods can't robustly address the dual-use dilemma.
+\subsection{Post-Processing: External Systems React to Context}
 
-\subsection{Post-Processing}
-
-Post-processing methods apply separate monitoring and filtering
-systems to evaluate user inputs and model outputs for harmfulness
-\cite{inan2023llamaguardllmbasedinputoutput,
-sharma2025constitutionalclassifiersdefendinguniversal} or classify
-them into categories \cite{handa2025economictasksperformedai}.
-
-Post-processing methods are contextual, making case-by-case decisions
-for each output and thus having the capacity to consider per-output
-real-world context.
-
-However, similarly to safety training, the context they implicitly
-work with is currently inferred from the request's content and is
-thus untrustworthy and vulnerable to similar attacks, as evidenced by
-the many jailbreaks that successfully target current production
-systems \cite{zhang2025outputconstraintsattacksurface}. Nevertheless,
-these methods could be modified to incorporate external contextual
-information, potentially serving as a foundation for more
-trustworthy, contextual safety mechanisms. We discuss this option in
-\cref{section:risk-classification}.
+Post-processing methods are systems that classify user inputs and model outputs for the purposes of steering the underlying model, and monitoring and filtering its outputs.
+Sometimes, these methods are used for usage monitoring, as is the case with Anthropic's Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld, handa2025economictasksperformedai}, other times, they are used for safety, as with Llama Guard \cite{inan2023llamaguardllmbasedinputoutput} and Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
+However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and is thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
+Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:gradient-routing}.
 
 \section{Access Controls as a Feasible Solution}
 \label{section:access-controls}
