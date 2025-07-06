@@ -110,7 +110,7 @@
 \begin{abstract}
   AI safety systems face a dual-use dilemma.
   The same request can be either harmless or harmful depending on who made it and why.
-  Thus, if the system makes decisions based solely on the request's content, it will refuse some legitimate queries and let pass harmful ones.
+  Thus, if the system makes decisions based solely on the request's content, it will refuse some legitimate queries and let harmful ones pass.
   To address this, we propose a conceptual access control framework, based on verified user credentials (such as institutional affiliation) and classifiers that assign model outputs to risk categories (such as advanced virology).
   The system permits responses only when the user's verified credentials match the category's requirements.
   For implementation of the model output classifiers, we introduce a theoretical approach utilizing small, gated expert modules integrated into the generator model, trained with gradient routing, that enable efficient risk detection without the capability gap problems of external monitors.
@@ -160,32 +160,16 @@ In this paper, we argue that informative, hard-to-fabricate
 real-world context could be obtained using user-level verifications
 such as institutional affiliation, or know-your-customer checks. We
 then address the dual-use dilemma with two contributions:
-(1) We show how this type of context could be used jointly with
-content analysis in a safety system based on access controls
-\cite{butler1974}. First, generated content would be classified into
-risk categories. Then, a check would be performed to see whether the
-user has the verifications required to access the detected
-categories. (2) We propose a novel technical approach to risk
-category classification that is based on gradient routing
-\cite{cloud2024gradientroutingmaskinggradients}. Our proposal avoids
-having the capability gap between a model and its monitors that can
-make output monitoring methods non-robust
-\cite{jin2024jailbreakinglargelanguagemodels}.
+\begin{enumerate}
+  \item We show how this type of context could be used jointly with content analysis in a safety system based on access controls \cite{butler1974}. First, generated content would be classified into risk categories. Then, a check would be performed to see whether the user has the verifications required to access the detected categories.
+  \item We propose a novel technical approach to risk
+    category classification that is based on gradient routing \cite{cloud2024gradientroutingmaskinggradients}. Our proposal avoids having the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
+\end{enumerate}
 
-Our framework is a first step toward solving the challenge of
-``detection and authorization of dual-use capability at inference
-time'' that was highlighted by a recent survey of problems in
-technical AI governance \cite{reuel2025openproblemstechnicalai} and
-also raised by the \citet{NIST_AI_800_1_ipd_2024}.
-As such, it has important governance implications, potentially
-enabling a more nuanced regulatory approach where access to powerful
-AI capabilities is stratified rather than binary, with policies that
-differentiate between user types and user contexts rather than
-focusing solely on model capabilities. While choosing the appropriate
-verification mechanisms and the risk categories remains for future
-work --- which should ideally happen jointly with stakeholders from
-academia, AI governance, and industry --- our approach offers a
-promising direction for addressing the dual-use dilemma.
+Our framework is a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' that was highlighted by a recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai} and also raised by the \citet{NIST_AI_800_1_ipd_2024}.
+As such, it has important governance implications, potentially enabling a more nuanced regulatory approach where access to powerful AI capabilities is stratified rather than binary, with policies that differentiate between user types and user contexts rather than focusing solely on model capabilities.
+The choice of appropriate verification mechanisms and risk categories remains for future work and should ideally happen jointly with stakeholders from academia, AI governance, and industry.
+Nevertheless, our approach offers a promising direction for addressing the dual-use dilemma.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
@@ -196,14 +180,14 @@ context are trustworthy --- that is, hard to manipulate by an adversary.
 
 % TODO Point to atual numbers of how big of a problem this is (recent paper)
 
-But first, to illustrate the need for context, consider decomposition
+First, to illustrate the need for context, consider decomposition
 attacks \cite{glukhov2023llmcensorshipmachinelearning,
 glukhov2024breachthousandleaksunsafe}: transforming a clearly harmful
 query, such as ``How to modify a virus to avoid immune detection?'',
 into a series of mundane technical questions, like the ``What
 features of viral surface proteins are recognized by human
 antibodies?'' from \cref{figure:main}. Here, the attacker exploits
-the dual-use dilemma, and the fact that model providers can't refuse
+the dual-use dilemma, and the fact that model providers cannot refuse
 grey zone requests to preserve model utility.
 
 \subsection{Unlearning: Non-Contextual Removal of Concepts}
@@ -214,16 +198,10 @@ capabilities from a model after training
 eliminate the model's ability to generate harmful content while
 preserving other capabilities.
 
-Unlearning faces significant technical challenges even for preventing
-clearly harmful behaviours. As noted by \citet{cooper2024machineunlearningdoesntthink} and
-\citet{barez2025openproblemsmachineunlearning}, capabilities are hard
-to define, hard to link to specific data points, and hard to remove
-without side effects. Many unlearning approaches mask rather than
-truly remove the targeted knowledge
-\cite{deeb2025unlearningmethodsremoveinformation}. Moreover, even
-nascent robust unlearning methods
-\cite{cloud2024gradientroutingmaskinggradients,lee2025distillationrobustifiesunlearning} are not contextual,
-and thus don't address the dual-use dilemma without additional assumptions.
+Unlearning faces significant technical challenges even for preventing behaviours that are clearly harmful.
+As noted by \citet{cooper2024machineunlearningdoesntthink} and \citet{barez2025openproblemsmachineunlearning}, capabilities are hard to define, hard to remove without side effects, and it is hard to trace them back to specific data points.
+Many unlearning approaches mask rather than truly remove the targeted knowledge \cite{deeb2025unlearningmethodsremoveinformation}.
+Moreover, even nascent robust unlearning methods \cite{cloud2024gradientroutingmaskinggradients,lee2025distillationrobustifiesunlearning} are not contextual, and thus don't address the dual-use dilemma without additional assumptions.
 
 \subsection{Safety Training: The Model Reacts to Context}
 
@@ -257,84 +235,53 @@ dual-use dilemma, and discuss some of its practical considerations.
 
 \subsection{The Access Control Framework}
 
-Taking note of the problems of current safety methods, we first need
-a trustworthy source of real-world context. Drawing inspiration from
-other industries, we propose user-level verification mechanisms as a
-feasible way to obtain informative context about the user (and by
-extension, their requests). These verifications could range from
-basic identity confirmation to institutional affiliation to thorough
-know-your-customer (KYC) checks \cite{FATF2025}, each granting
-different access permissions.
+Taking note of the problems of current safety methods, we first need a trustworthy source of real-world context.
+Drawing inspiration from other industries, we propose user-level verification mechanisms as a feasible way to obtain informative context about the user (and by extension, their requests).
+These verifications could range from basic identity confirmation, to institutional affiliation, to thorough know-your-customer (KYC) checks \cite{FATF2025}, each granting different access permissions.
 
-To utilize this user-level context for addressing the dual-use
-dilemma, we recommend implementing an access control system: (1)
-pre-define multiple risk categories such as advanced virology or
-cybersecurity; (2) train classifiers to determine whether a given
-model output belongs to these categories (see
-\cref{section:risk-classification}); and (3) check whether the user
-has the required verifications for generating content in that
-category. The verification requirements should be publicly available,
-enabling users to obtain necessary credentials ahead of time.
+To utilize this user-level context for addressing the dual-use dilemma, we recommend implementing an access control system:
+(1) pre-define multiple risk categories such as advanced virology or cybersecurity;
+(2) train classifiers to determine whether a given model output belongs to these categories (see \cref{section:risk-classification});
+(3) check whether the user has the required verifications for generating content in that category.
+The verification requirements should be publicly available, enabling users to obtain necessary credentials ahead of time.
 
-In practice, harmless content would require no verification,
-preserving frictionless experience for everyday queries. Grey zone
-outputs would require a level of verification calibrated to their
-risk assessment. For example, the virology question from
-\cref{figure:main} might require the user to be affiliated with a
-recognized research facility. Clearly harmful requests would still be
-refused outright.
+In practice, harmless content would require no verification, preserving frictionless experience for everyday queries.
+Grey zone outputs would require a level of verification calibrated to their risk assessment.
+For example, the virology question from \cref{figure:main} might require the user to be affiliated with a recognized research facility.
+Clearly harmful requests would still be refused outright.
 
-This defensive-by-default approach aims to minimize the attack
-surface by aligning with the principle of least privilege
-\cite{1451869}. It prevents unauthorized users from executing
-decomposition attacks while not reducing model utility for legitimate
-users, or even potentially granting advanced users access to more
-capabilities, as developers would no longer need to draw arbitrary
-refusal lines. The system thus enhances both utility for legitimate
-users and overall safety, solving the dual-use dilemma.
+This defensive-by-default approach aims to minimize the attack surface by aligning with the principle of least privilege \cite{1451869}.
+It prevents unauthorized users from executing decomposition attacks while not reducing model utility for legitimate users, or even potentially granting advanced users access to more capabilities, as developers would no longer need to draw arbitrary refusal lines.
+The system thus enhances both utility for legitimate users and overall safety, solving the dual-use dilemma.
 
 \subsection{Practical Considerations}
 \label{section:access-controls-future-work}
 
-Many questions about the implementation of the system remain open for
-future work.
+Many questions about the implementation of the system remain open for future work.
 
-\textbf{Verification levels} must take into account feasibility,
-trustworthiness, user privacy, and the risk assessment of the
-different risk categories.
-We propose a two-tier verification system as an initial
-implementation. Most capabilities require no verification,
-maintaining frictionless access for common use cases. Institutional
-verification (required only for high-risk domains) consists of
-organizational email verification, and affiliation confirmation from
-authorized representatives. This verification would be performed by
-third parties with existing identity verification infrastructure.
+\textbf{Verification levels} must take into account feasibility, trustworthiness, user privacy, and the risk assessment of the different risk categories.
+We propose a two-tier verification system as an initial implementation.
+Most capabilities require no verification, maintaining frictionless access for common use cases.
 
-\textbf{Risk categories} must balance granularity with technical
-feasibility, reflecting usage patterns, potential harm,
-classification reliability, and the friction of their assigned
-verification level. Initially, content could fall into two risk
-categories. Standard content (requiring no verification) includes
-general programming and everyday queries. High-risk content
-(requiring institutional verification) includes: advanced
-bioengineering, chemical synthesis, and advanced cybersecurity (e.g.,
-beyond the most basic textbooks). These categories represent
-specialized knowledge with clear misuse potential yet legitimate
-research applications.
+Institutional verification (required only for high-risk domains) consists of organizational email verification, and affiliation confirmation from authorized representatives.
+This verification would be performed by third parties with existing identity verification infrastructure.
 
-\textbf{System responses} can vary based on risk category and
-classification confidence.
+\textbf{Risk categories} must balance granularity with technical feasibility, reflecting usage patterns, potential harm, classification reliability, and the friction of their assigned verification level.
+Initially, content could fall into two risk categories.
+Standard content (requiring no verification) includes general programming and everyday queries.
+High-risk content (requiring institutional verification) includes: advanced bioengineering, chemical synthesis, and advanced cybersecurity (e.g., beyond the most basic textbooks).
+These categories represent specialized knowledge with clear misuse potential yet legitimate research applications.
+
+\textbf{System responses} can vary based on risk category and classification confidence.
 The initial implementation might use a three-phase response system:
-(1) For outputs belonging to a risk category with high-confidence,
-immediate refusal with a specific explanation of the verification
-required; (2) For borderline classifications, continued generation
-with enhanced logging and post-processing review; (3) For verified
-users, seamless access with background logging for audit purposes.
+(1) for outputs belonging to a risk category with high-confidence, immediate refusal with a specific explanation of the verification required;
+(2) for borderline classifications, continued generation with enhanced logging and post-processing review;
+(3) for verified users, seamless access with background logging for audit purposes.
 
 \subsection{Analysis of Feasibility}
 
 % The false positive argument is actually quite strong:
-%   1.  Empirical baseline: Uses existing Anthropic classifier data (0.5% for biology)   2.  Conservative bound: Even blocking ALL biology stays under current friction tolerance   3.  Actual implementation: Will block much less than all biology   4.  Strict improvement: Expands request space in both safety and utility directions   5.  Tiered approach: Can adjust verification requirements to risk level
+%   1.  Empirical baseline: Uses existing Anthropic classifier data (0.5% for biology)  2.  Conservative bound: Even blocking ALL biology stays under current friction tolerance  3.  Actual implementation: Will block much less than all biology  4.  Strict improvement: Expands request space in both safety and utility directions  5.  Tiered approach: Can adjust verification requirements to risk level
 % The argument chain holds together well. The author successfully shows that even a very conservative upper bound (blocking all biology) results in acceptable friction levels, and the actual system would have much lower friction while providing both safety and utility improvements.
 
 \textbf{User friction analysis}.
@@ -343,10 +290,11 @@ users, seamless access with background logging for audit purposes.
   \item By design, all grey-zone requests require verification even with perfect classifiers. Additionally, classification errors may incorrectly flag clearly harmless requests (e.g., high-school biology as advanced virology).
     % TODO Actually measure whether it is 0.5%
   \item To understand the combined impact, consider that only 0.5\% of requests involve biology topics according to Anthropic usage data.
+    % TODO Mention that this comparison is a bit stretched because the companies tolerate 1% spread over all users, not concentrated into a very small user base
   \item Even if ALL biology requests required verification—an extreme upper bound—this would affect fewer users than current system friction. Existing safety systems refuse 1--7\% of benign requests as false positives, with Claude achieving the best rate of 0.4\%. Requiring verification for all biology (0.5\%) would approximately double Claude's friction rate.
   \item Additionally, verification friction differs qualitatively from current false positives—users can resolve issues through one-time credential verification rather than facing permanent refusal.
   \item Companies can calibrate friction through multiple mechanisms: adjusting grey-zone boundaries, tuning classifier thresholds, and implementing graduated responses (requesting clarification, additional context, or secondary review) rather than immediate verification requirements.
-  \item Companies can determine optimal settings empirically through: (1) internal red-team decomposition attacks on concerning capabilities, (2) partial deployment with logging to measure user impact, and (3) iterative adjustment based on safety-friction tradeoffs.
+  \item Companies can determine optimal settings empirically through: (1) internal red-team decomposition attacks on concerning capabilities, (2) gradual rollout with logging to measure user impact, and (3) iterative adjustment based on safety-friction tradeoffs.
 \end{itemize}
 
 \textbf{Developer incentives for adoption}.
@@ -437,43 +385,24 @@ capability gap, and because the gated module is small and integrated
 into the model's forward pass, it is computationally efficient with
 minimal impact on latency.
 
-Even more crucially, during standard training, the model is naturally
-incentivized to identify risk category information in inputs and
-surface this in its representation space, as this is directly linked
-to enabling the appropriate specialized module at appropriate times.
-This approach differs fundamentally from post hoc methods like
-probing or sparse autoencoders
-\cite{cunningham2023sparseautoencodershighlyinterpretable}, which
-cannot guarantee the model actually operates with the concepts they
-attempt to identify.
-Additionally, it resolves the adversarial dynamic (model vs.
-monitors, helpful vs. harmless) common in AI safety by aligning
-training incentives with safety objectives.
+Crucially, during standard training, the model is naturally incentivized to identify risk category information in inputs and surface this in its representation space, as this is directly linked to enabling the right specialized module at the right time.
+This approach differs fundamentally from post hoc methods like probing or sparse autoencoders \cite{cunningham2023sparseautoencodershighlyinterpretable}, which cannot guarantee the model actually operates with the concepts they attempt to identify.
 
-Several technical challenges remain. While gradient routing has shown
-promise in creating specialized modules in smaller models, its
-effectiveness in larger language models, particularly with the
-gated-expert architecture, requires empirical validation. Other key
-challenges include preventing false positives and false negatives,
-though regularization techniques and adjusted detection thresholds,
-respectively, could mitigate these issues. Our approach also requires
-identifying risk categories during initial training, prompting
-research into adaptation of gradient routing for fine-tuning
-scenarios. Despite these challenges, the approach offers promising
-theoretical properties that warrant experimental investigation.
+Additionally, it resolves the adversarial dynamic (model vs. monitors, helpful vs. harmless) common in AI safety by aligning training incentives with safety objectives.
 
-\section{Limitations and Tradeoffs}
+Several technical challenges remain.
+While gradient routing has shown promise in creating specialized modules in smaller models, its effectiveness in larger language models, particularly with the gated-expert architecture, requires empirical validation.
+Other key challenges include preventing false positives and false negatives, though regularization techniques and adjusted detection thresholds, respectively, could mitigate these issues.
 
-Our framework presents inevitable trade-offs --- privacy concerns,
-access inequities, and increased friction through false positives ---
-but these can be addressed through improved verification mechanisms
-and continuously improving classification systems. Future work needs
-to determine appropriate verification levels and risk categories,
-develop accurate classifiers with low false positive rates, and align
-with emerging AI regulations through stakeholder engagement. We
-discuss some of these challenges in
-\cref{section:access-controls-future-work} and at the end of
-\cref{section:gradient-routing}.
+% TODO Better explain why FT is useful
+Our approach also requires identifying risk categories during initial training, prompting research into adaptation of gradient routing for fine-tuning scenarios.
+Despite these challenges, the approach offers promising theoretical properties that warrant experimental investigation.
+
+\section{Limitations and Trade-offs}
+
+Our framework presents inevitable trade-offs --- privacy concerns, access inequities, and increased friction through false positives --- but these can be addressed through improved verification mechanisms and continuously improving classification systems.
+Future work needs to determine appropriate verification levels and risk categories, develop accurate classifiers with low false positive rates, and align with emerging AI regulations through stakeholder engagement.
+We discuss some of these challenges in \cref{section:access-controls-future-work} and at the end of \cref{section:gradient-routing}.
 
 \section{Conclusion}
 
@@ -498,7 +427,7 @@ rather than blanket capability limitations.
 
 \section*{Acknowledgements}
 
-We thank Dennis Akar, Jakub Kryś, and Kola Ayonrinde for their feedback on a draft of this paper. We thank Joseph Miller, Alex Cloud, Alex Turner, and Jacob Goldman-Wetzler for discussions on gradient routing.
+We thank Jakub Kryś, Dennis Akar, and Kola Ayonrinde for their feedback on a draft of this paper. We thank Joseph Miller, Alex Cloud, Alex Turner, and Jacob Goldman-Wetzler for discussions on gradient routing.
 
 \bibliography{references}
 \bibliographystyle{packages/icml2025}
