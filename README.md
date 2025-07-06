@@ -7,7 +7,7 @@
 - [ ] Differentiate better between safety training methods and post-processing attacks
     - Both could be trained to work with context, but with post-processing this would be faster to achieve, more transparent, and easier to update.
 - [ ] Maybe change the framing slightly to talk more about government and industry incentives: both want more granularity to enable both more capabilities and more safety at the same time!
-- [ ] Explain what kinds of models we are targetting (LLMs, not small specialized models)
+- [ ] Explain what kinds of models we are targeting (LLMs, not small specialized models)
 
 > (10) so much rests on figure 1, it'd be great to have a more detailed figure describing how you want to embed risk tiering into models in the appendix. 
 
@@ -15,16 +15,6 @@
 
 # Reviewer Notes
 
-> What counts as basic identity confirmation? Uploading an ID photo? 
-
-> What possible governance structures could most effectively oversee credentialing?
-
-> is institutional affiliation a sufficient indicator of responsible use?
-
-- [ ] Expand verification levels with specific examples of identity confirmation methods and institutional verification processes (~0.2 pages)
-- [ ] Add details about how the credentialing would work to 3.2.
-- [ ] Add defense information to 3.3 about the feasibility of the proposed credentialling setup.
-- [ ] Add defense of institutional affiliation to 3.3.
 
 > As mentioned in the paper, the primary technical approach of gradient routing for addressing the capabilities gap has not been empirically validated, and this is an important consideration for feasibility.
 
@@ -52,9 +42,20 @@ Improve the presentation of gradient routing in Section 4:
 
 Expand discussion in Section 5 (System Limitations and Tradeoffs):
 
-- [ ] Add governance and equity discussion addressing institutional bias, alternative credentialing pathways, and oversight mechanisms (~0.3 pages)
+- [X] Add governance and equity discussion addressing institutional bias, alternative credentialing pathways, and oversight mechanisms (~0.3 pages)
 
 - [ ] Add privacy discussion covering data retention, anonymization, and surveillance concerns (~0.2 pages)
+
+> What counts as basic identity confirmation? Uploading an ID photo? 
+
+> What possible governance structures could most effectively oversee credentialing?
+
+> is institutional affiliation a sufficient indicator of responsible use?
+
+- [X] Expand verification levels with specific examples of identity confirmation methods and institutional verification processes (~0.2 pages)
+- [X] Add details about how the credentialing would work to 3.2.
+- [X] Add defense information to 3.3 about the feasibility of the proposed credentialling setup.
+- [X] Add defense of institutional affiliation to 3.3.
 
 > If the authors were to instead place the central focus on gradient routing as a means to achieve access controls, it would be especially interesting to show some kind of validation or provide arguments that such techniques could effectively modularize the relevant level of technical sophistication in a domain - e.g., achieve routing of only advanced virology, but not basic virology. 
 

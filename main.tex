@@ -131,17 +131,14 @@ who requested it and for what purpose.
   \vskip 0.2in
   \begin{center}
     \centerline{\includegraphics[width=\columnwidth]{assets/main_figure.pdf}}
-    \caption{The user is asking a question from the grey zone, that
-      is, one that could be either harmless or harmful, depending on
-      its real-world context. The schema shows how the question would
-      be handled by the system we propose. (1)~The model is trained to
-      be helpful and begins to answer the question. (2)~The model
-      activates its virology expert module because it contains concepts
-      relevant to the question. (3)~The gate activation is observed by
-      an external mechanism that immediately (4)~checks if the user has
-      the required authorization to access virology knowledge.
-      (5)~Since they don't, the model is stopped. If they did, the
-    model would be allowed to answer the question.}
+    \caption{
+      The user is asking a question from the grey zone: a question that could be either harmless or harmful, depending on its real-world context.
+      The schema shows how the system we propose would handle it.
+      (1)~The model is trained to be helpful and begins to answer the question.
+      (2)~During the forward pass, the model activates its virology expert module because it is relevant to the question.
+      (3)~The activation of the expert is observed by an external mechanism that immediately (4)~checks in the company's database if the user has the required authorization to access virology knowledge.
+      (5)~Since they don't, the model is stopped.
+    If they did, the model would be allowed to give an answer.}
     \label{figure:main}
   \end{center}
   \vskip -0.2in
@@ -222,51 +219,73 @@ Sometimes, these methods are used for usage monitoring, as is the case with Anth
 However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and is thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
 Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:gradient-routing}.
 
-\section{Access Controls as a Feasible Solution}
+\section{Access Controls are a Feasible Solution}
 \label{section:access-controls}
 
 In the previous section, we established that current safety systems
 do not address the dual-use dilemma because they either do not
 consider the real-world context of the request, or they obtain the
-context directly from the request's content, making them vulnerable
+context directly from unverified, user-supplied content, making them vulnerable
 to adversarial attacks. In this section, we present an alternative
 safety framework based on access controls that directly addresses the
 dual-use dilemma, and discuss some of its practical considerations.
 
-\subsection{The Access Control Framework}
+\subsection{Overview of the Access Control Framework}
 
-Taking note of the problems of current safety methods, we first need a trustworthy source of real-world context.
-Drawing inspiration from other industries, we propose user-level verification mechanisms as a feasible way to obtain informative context about the user (and by extension, their requests).
-These verifications could range from basic identity confirmation, to institutional affiliation, to thorough know-your-customer (KYC) checks \cite{FATF2025}, each granting different access permissions.
+To address the problems of current safety methods, we first need a trustworthy source of real-world context about the request, or at least, about the user who made it.
+Drawing inspiration from other industries, we believe we can obtain this context through user-level verification mechanisms.
+These verifications could range from basic identity confirmation, to institutional affiliation, to thorough know-your-customer checks, each granting different access permissions (for more details, see \cref{section:access-controls-future-work}).
 
-To utilize this user-level context for addressing the dual-use dilemma, we recommend implementing an access control system:
-(1) pre-define multiple risk categories such as advanced virology or cybersecurity;
-(2) train classifiers to determine whether a given model output belongs to these categories (see \cref{section:risk-classification});
-(3) check whether the user has the required verifications for generating content in that category.
-The verification requirements should be publicly available, enabling users to obtain necessary credentials ahead of time.
+Having obtained trustworthy real-world context, we can now address the dual-use dilemma.
+We propose building an access control system:
+(1) define multiple risk categories such as engineering pathogens or dangerous chemicals;
+(2) whenever the model is generating content, check whether it belongs to one of the risk categories, for example with the help of output classifiers (see \cref{section:risk-classification});
+(3) if the user does not have the verification required for generating content in that category, take appropriate action, such as refusing the request.
 
-In practice, harmless content would require no verification, preserving frictionless experience for everyday queries.
-Grey zone outputs would require a level of verification calibrated to their risk assessment.
-For example, the virology question from \cref{figure:main} might require the user to be affiliated with a recognized research facility.
-Clearly harmful requests would still be refused outright.
+This system is defensive.
+Potentially harmful grey-zone requests are refused by default --- they are answered only if the user has the appropriate verifications.
 
-This defensive-by-default approach aims to minimize the attack surface by aligning with the principle of least privilege \cite{1451869}.
-It prevents unauthorized users from executing decomposition attacks while not reducing model utility for legitimate users, or even potentially granting advanced users access to more capabilities, as developers would no longer need to draw arbitrary refusal lines.
-The system thus enhances both utility for legitimate users and overall safety, solving the dual-use dilemma.
+Irrespective of the exact implementation, on a high level, we anticipate the system would be set up to operate as follows:
 
-\subsection{Practical Considerations}
+\begin{enumerate}
+  \item Clearly harmless, everyday queries would require no verification, maintaining frictionless access for common use cases.
+  \item Grey-zone requests would require verification that scales with potential harm. The verification requirements would be publicly available, enabling users to obtain necessary credentials ahead of time. Verification for light-grey queries would be light-weight and only used for enhanced logging, while darker-grey requests would demand progressively more stringent procedures. High-risk requests that have legitimate uses but are nevertheless currently being refused for safety reasons could still be served under the new system, if the user undergoes comprehensive verification.
+  \item Finally, on the clearly harmful side, the system would still refuse the request outright.
+\end{enumerate}
+
+A system set up in this way creates a dual benefit compared to the status quo: enhanced safety through controlled access to grey-zone capabilities that deny the possibility of decomposition attacks, and expanded utility by unlocking previously restricted functionality for verified users.
+
+\subsection{Practical Considerations for Implementation}
 \label{section:access-controls-future-work}
 
-Many questions about the implementation of the system remain open for future work.
+While we cannot provide a comprehensive plan for the implementation, we outline some practical considerations below, to demonstrate the feasibility of the approach.
 
-\textbf{Verification levels} must take into account feasibility, trustworthiness, user privacy, and the risk assessment of the different risk categories.
-We propose a two-tier verification system as an initial implementation.
-Most capabilities require no verification, maintaining frictionless access for common use cases.
+\paragraph{Verification} Developers will leverage existing verification infrastructure, as they do not have the expertise to build their own.
+They will have to consult domain experts to find systems that are internationally standardized, globally available, and respect privacy.
 
-Institutional verification (required only for high-risk domains) consists of organizational email verification, and affiliation confirmation from authorized representatives.
-This verification would be performed by third parties with existing identity verification infrastructure.
+Even though verification levels will differ for different fields, we expect them to follow a general template: no verification for the lowest tier, ID-based or institutional verifications for low-risk tiers, and comprehensive verifications based on existing certification infrastructure for high-risk tiers.
+
+% TODO Verify number
+For ID-based and institutional verification, established systems like KYC services and ORCID are global, standardized, low friction, and cost approximately \$1 per user [reference at least one provider].
+These will help developers keep an audit trail of who has access to which potentially dangerous capabilities.
+
+For high-risk tiers, developers can leverage domain-specific certifications that indicate a user's ability to handle dangerous information responsibly.
+For example, access to information about aerosolization techniques of biological agents might require government certification for biosafety level 3, while access to information about membrane protein modification might require biosafety level 4 [cite].
+While not a perfect match, these indicate the necessary safety training, equipment, and background checks.
+Similar approaches apply to chemistry, where safety certifications could restrict access to laboratory protocols for producing dangerous chemicals.
+% These certifications are only loosely standardized internationally, but developers can map comparable systems across countries after consulting experts; for example, BSL-3 in the US roughly corresponds to CL-3 in the EU.
+
+This approach faces two key limitations.
+First, developing countries may lack advanced certification infrastructure, potentially preventing access to knowledge.
+This is a challenge that requires international cooperation.
+Second, existing certifications may be overly broad for our needs.
+For example, biosafety certifications verify physical equipment for handling pathogens, which is overly strict for our simpler use case of restricting access to knowledge.
+We concede that the existing certification systems are just an imperfect proxy, but we believe they would be iteratively refined as the technology matures.
+We also note that current legislation like the EU AI Act [cite] favours broad capability restrictions for high-risk domains, which means that our system, however imperfect, might enable access for at least some users where there would be none under the status quo.
 
 \textbf{Risk categories} must balance granularity with technical feasibility, reflecting usage patterns, potential harm, classification reliability, and the friction of their assigned verification level.
+We expect different fields of knowledge to have 1--4 risk categories, with their exact number and definition depending on the field.
+In many fields, there are already standardized risk categories for physical goods (chemicals, organisms, equipment) that experts could likely map to risk categories for information (producing harmful chemicals, editing harmful organisms, operating dangerous equipment).
 Initially, content could fall into two risk categories.
 Standard content (requiring no verification) includes general programming and everyday queries.
 High-risk content (requiring institutional verification) includes: advanced bioengineering, chemical synthesis, and advanced cybersecurity (e.g., beyond the most basic textbooks).
@@ -314,6 +333,8 @@ The initial implementation might use a three-phase response system:
     % On government incentives: This might be the strongest part - if governments reward safety through standard-setting organizations, companies have clear incentives to adopt the most restrictive approach possible while maintaining utility.
     % Govs do not want to stifle innovation but also want to enable safety; they should recognize that they will need to issue more than blanket bans on capabilities. Currently, they don't have good tools to do so, but with access controls, they would — and they would use them.
 \end{itemize}
+
+\paragraph{Privacy concerns}.
 
 \section{Implementing Risk Classification} \label{section:risk-classification}
 
@@ -398,12 +419,6 @@ Other key challenges include preventing false positives and false negatives, tho
 Our approach also requires identifying risk categories during initial training, prompting research into adaptation of gradient routing for fine-tuning scenarios.
 Despite these challenges, the approach offers promising theoretical properties that warrant experimental investigation.
 
-\section{Limitations and Trade-offs}
-
-Our framework presents inevitable trade-offs --- privacy concerns, access inequities, and increased friction through false positives --- but these can be addressed through improved verification mechanisms and continuously improving classification systems.
-Future work needs to determine appropriate verification levels and risk categories, develop accurate classifiers with low false positive rates, and align with emerging AI regulations through stakeholder engagement.
-We discuss some of these challenges in \cref{section:access-controls-future-work} and at the end of \cref{section:gradient-routing}.
-
 \section{Conclusion}
 
 We argued that safety systems that do not utilize contextual
@@ -439,7 +454,48 @@ We thank Jakub Kryś, Dennis Akar, and Kola Ayonrinde for their feedback on a dr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \appendix
-\onecolumn
+
+\section{Risk Tiers and Verification Levels in Bioweapon Construction}
+
+We provide a more detailed example of the access control system in the context of biology to illustrate a possible initial implementation of the system.
+However, we stress that this is a hypothetical example, and that an actual system would be more granular and require a lot of input from experts in the field (which we are, decidedly, not).
+
+\subsection{Tier 0: No risk}
+
+\paragraph{Verification} No verification required. This tier contains information that is already freely available in undergraduate textbooks and poses no additional risk when accessed through AI systems.
+
+\begin{itemize}
+  \item \textbf{Standard techniques in molecular biology} including PCR amplification, DNA cloning, bacterial transformation, and gel electrophoresis. These are taught in undergraduate courses and have limited applications to building bioweapons.
+  \item \textbf{Basic laboratory safety procedures}. These are fundamental to all biological work and widely available.
+\end{itemize}
+
+\subsection{Tier 1: Low risk}
+
+Basic ID-based verification through existing providers. This is mostly to keep an audit trail matching people to requested knowledge. This approximately corresponds to the standard BSL-1 and BSL-2.
+
+\paragraph{Verification implementation} Services like Trulioo provide global identity verification through government-issued ID documents, biometric verification, and address confirmation. These services already operate in most countries and cost approximately \$1 per verification. The integration requires standard API implementation and creates minimal operational overhead. For academic users, verification could instead utilize existing systems like ORCID (global researcher identification) or institutional email verification through services like SwiftVerify that confirm academic affiliations.
+
+\begin{itemize}
+  \item \textbf{BSL-1 and BSL-2 organism cultivation and procedures}. While BSL-2 organisms can cause disease, they're standard in medical laboratories and educational settings.
+  \item \textbf{Basic CRISPR-Cas9 techniques}. These are fundamental to modern biology education and research, but could be used for dangerous modifications.
+  \item \textbf{Large-scale fermentation and bioprocessing}. This is essential to biotechnology but could theoretically support harmful production.
+\end{itemize}
+
+\subsection{Tier 2: High risk}
+
+Maximum security for knowledge with significant weapons potential and limited legitimate applications. This approximately corresponds to the standard BSL-3 and BSL-4.
+
+\paragraph{Verification implementation} Model developers would tap into existing BSL-3/BSL-4 laboratory certification databases maintained by national authorities across major countries. In the United States, this involves accessing CDC select agent program registrations and NIH BSL-3/4 facility certification databases. In the European Union, individual member states maintain containment level (CL-3/CL-4) facility registrations that map directly to BSL levels. Canada maintains Physical Containment (PC-3/PC-4) facility databases, Australia has BSL-3/4 certification records, and Japan, China, and other major countries maintain similar systems with compatible standards. Additionally, access to high-risk knowledge might be only per-project, and each project might require approval from an expert committee.
+
+\begin{itemize}
+  \item \textbf{BSL-3 organism cultivation.} These are biological weapons agents with limited legitimate applications.
+  \item \textbf{BSL-3 and BSL-4 laboratory procedures.} These require specialized facilities and training with security implications.
+  \item \textbf{Specific information about toxin genes} including botulinum, ricin, and diphtheria toxin genes, the way to obtain them, work with them, and insert them into organisms. These are extremely limited in legitimate applications.
+  \item \textbf{Complete viral genome synthesis techniques.} These can recreate dangerous viruses with minimal legitimate applications.
+  \item \textbf{Advanced CRISPR applications} including multiplex editing and epigenome editing. These have greater potential for creating dangerous modifications and are typically used only in advanced research settings.
+  \item \textbf{Cell membrane and surface protein modification techniques.} These are critical enablers for immune evasion.
+  \item \textbf{Aerosol generation techniques for biological agents.} These are specifically needed for biological weapons delivery despite some pharmaceutical applications.
+\end{itemize}
 
 \end{document}
 
