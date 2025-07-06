@@ -265,15 +265,13 @@ They will have to consult domain experts to find systems that are internationall
 
 Even though verification levels will differ for different fields, we expect them to follow a general template: no verification for the lowest tier, ID-based or institutional verifications for low-risk tiers, and comprehensive verifications based on existing certification infrastructure for high-risk tiers.
 
-% TODO Verify number
-For ID-based and institutional verification, established systems like KYC services and ORCID are global, standardized, low friction, and cost approximately \$1 per user [reference at least one provider].
+For ID-based and institutional verification, established systems like Stripe Identity~\cite{stripe_identity_2024} or ORCID~\cite{orcid_2024} are global, standardized, low friction, and cost under \$2 per user.
 These will help developers keep an audit trail of who has access to which potentially dangerous capabilities.
+The cost is negligible for the model provider, as most users will stay unverified (see \cref{section:feasibility-analysis}).
 
 For high-risk tiers, developers can leverage domain-specific certifications that indicate a user's ability to handle dangerous information responsibly.
-For example, access to information about aerosolization techniques of biological agents might require government certification for biosafety level 3, while access to information about membrane protein modification might require biosafety level 4 [cite].
-While not a perfect match, these indicate the necessary safety training, equipment, and background checks.
-Similar approaches apply to chemistry, where safety certifications could restrict access to laboratory protocols for producing dangerous chemicals.
-% These certifications are only loosely standardized internationally, but developers can map comparable systems across countries after consulting experts; for example, BSL-3 in the US roughly corresponds to CL-3 in the EU.
+The model provider would need to work with domain experts and national authorities to find the right certifications for their use case.
+For example, while restricting access to information relevant to bioweapon construction, they could leverage biosafety level (BSL) certifications in the US~\cite{CDC_BMBL_2020}, or their equivalents in other countries~\cite{EU_Directive_2000_54_EC}, while for chemical weapons, they could leverage the Schedules from the Chemical Weapons Convention~\cite{OPCW_CWC_1993}.
 
 This approach faces two key limitations.
 First, developing countries may lack advanced certification infrastructure, potentially preventing access to knowledge.
@@ -282,6 +280,8 @@ Second, existing certifications may be overly broad for our needs.
 For example, biosafety certifications verify physical equipment for handling pathogens, which is overly strict for our simpler use case of restricting access to knowledge.
 We concede that the existing certification systems are just an imperfect proxy, but we believe they would be iteratively refined as the technology matures.
 We also note that current legislation like the EU AI Act [cite] favours broad capability restrictions for high-risk domains, which means that our system, however imperfect, might enable access for at least some users where there would be none under the status quo.
+
+% TODO Have an example: For example, access to information about aerosolization techniques of biological agents could require government certification for biosafety level 3 (BSL-3), while access to information about membrane protein modifications might require BSL-4.
 
 \textbf{Risk categories} must balance granularity with technical feasibility, reflecting usage patterns, potential harm, classification reliability, and the friction of their assigned verification level.
 We expect different fields of knowledge to have 1--4 risk categories, with their exact number and definition depending on the field.
@@ -298,6 +298,7 @@ The initial implementation might use a three-phase response system:
 (3) for verified users, seamless access with background logging for audit purposes.
 
 \subsection{Analysis of Feasibility}
+\label{section:feasibility-analysis}
 
 % The false positive argument is actually quite strong:
 %   1.  Empirical baseline: Uses existing Anthropic classifier data (0.5% for biology)  2.  Conservative bound: Even blocking ALL biology stays under current friction tolerance  3.  Actual implementation: Will block much less than all biology  4.  Strict improvement: Expands request space in both safety and utility directions  5.  Tiered approach: Can adjust verification requirements to risk level
@@ -473,7 +474,7 @@ However, we stress that this is a hypothetical example, and that an actual syste
 
 Basic ID-based verification through existing providers. This is mostly to keep an audit trail matching people to requested knowledge. This approximately corresponds to the standard BSL-1 and BSL-2.
 
-\paragraph{Verification implementation} Services like Trulioo provide global identity verification through government-issued ID documents, biometric verification, and address confirmation. These services already operate in most countries and cost approximately \$1 per verification. The integration requires standard API implementation and creates minimal operational overhead. For academic users, verification could instead utilize existing systems like ORCID (global researcher identification) or institutional email verification through services like SwiftVerify that confirm academic affiliations.
+\paragraph{Verification implementation} Services like Stripe Identity provide global identity verification through government-issued ID documents, biometric verification, and address confirmation. These services already operate in most countries and cost under \$2 per verification. The integration requires standard API implementation and creates minimal operational overhead. For academic users, verification could instead utilize existing systems like ORCID (global researcher identification) or institutional email verification through services like SwiftVerify that confirm academic affiliations.
 
 \begin{itemize}
   \item \textbf{BSL-1 and BSL-2 organism cultivation and procedures}. While BSL-2 organisms can cause disease, they're standard in medical laboratories and educational settings.
