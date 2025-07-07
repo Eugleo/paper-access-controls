@@ -221,18 +221,18 @@ Sometimes, these methods are used for usage monitoring, as is the case with Anth
 However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and is thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
 Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:gradient-routing}.
 
-\section{Access Controls are a Feasible Solution}
+\section{Access Controls as a Solution}
 \label{section:access-controls}
 
-In the previous section, we established that current safety systems cannot make truly context-aware decisions about whether to refuse a request because of a lack of access to trustworthy real-world context.
-In this section, we describe a verification-based access control system that does not have this issue.
+Current safety systems face the dual-use dilemma because they lack trustworthy information about who is making a request and why.
+In this section, we describe an access control system that addresses this problem by verifying user credentials before granting access to sensitive knowledge.
 
 \subsection{Overview of the Access Control Framework}
 
 We propose a defensive system where grey-zone requests are refused by default, but users can gain access to specific categories of knowledge if they undergo verification.
 
 When a model provider sets up the system, they make two design decisions with the help of domain experts.
-First, they define \textbf{content categories} (\cref{section:risk-categories}): groups of sensitive topics organized by domain and risk rating.
+First, they define \textbf{content categories} (\cref{section:content-categories}): groups of sensitive topics organized by domain and risk rating.
 Second, for each content category, they specify a \textbf{verification mechanism} (\cref{section:verification-mechanisms}): the verification process users must complete to access that category.
 
 Whenever the model generates an output, the system performs \textbf{content classification} (\cref{section:content-classification}) to check if the model's output belongs to any pre-defined content category.
@@ -245,31 +245,24 @@ This approach directly addresses both sides of the dual-use dilemma.
 Decomposition attacks become harder because the system refuses grey-zone requests by default---attackers would need legitimate credentials rather than clever prompting.
 Simultaneously, verified users can access specialized knowledge that would face blanket restrictions under current approaches.
 
-The main concern is increased user friction, but we show in \cref{section:feasibility-analysis} that this should be minimal; among other things, because most users will never make grey-zone requests.
+The main concern is increased user friction, but we show in \cref{section:feasibility-and-limitations} that this should be minimal; among other things, because most users will never make grey-zone requests.
 
 % TODO Maybe make a figure that describes the 4 parts and make it be figure 1.
 
-\subsection{Risk Categories} \label{section:risk-categories}
+\subsection{Content Categories} \label{section:content-categories}
 
-% TODO Maybe add table that illustrates that these are both horizontal and vertical.
+Content categories are groups of sensitive topics organized by domain and risk level, which the model providers will develop with domain experts on top of existing risk frameworks.
+For example, in biology, they could use the biosafety levels (BSL)~\cite{CDC_BMBL_2020} and dual-use research of concern policies~\cite{USG_DURC_2012}.
 
-As with verification levels, we expect model providers will consult domain experts to find the right risk categories for their models.
-These will likely be based on existing domain-specific risk categories for physical goods (chemicals, organisms, equipment), first adapted to the field of knowledge (e.g. regulating the distribution of equipment will turn to regulating the knowledge about how to operate said equipment correctly), and later iteratively refined based on real usage data, incident reports, etc.
-We expect different fields of knowledge to end up with 1--4 risk categories.
+However, these existing frameworks only categorize entities like organisms or compounds that are too broad for content control in our system.
+Thus, experts would need to decompose these high-level concepts into component knowledge pieces.
+For instance, for growing and spreading a dangerous BSL-3 pathogen, this might include specific procurement methods, cultivation techniques, purification methods, and protocols for specialized equipment.
+For each component, experts would assess how many harmless versus harmful applications it enables, then assign it to an appropriate risk category: widely useful techniques with many benign applications, such as using CRISPR, would remain in low-risk categories with minimal verification, while specialized techniques with limited legitimate uses, such as aerosolization of bacteria, would require higher verification levels.
 
-Each risk category is actually a collection of topics associated to a concrete verification level.
-Whenever the system detects that the model is generating an output from one of these topics, it will check whether the user has the appropriate verification level.
-Thus, the main desiderata for risk categories are:
-\begin{itemize}
-  \item Feasibility of classification: Risk categories should be technically feasible to classify solely based on information we have access to during a model's forward pass. Good example: ``safety protocols to follow in a BSL-3 laboratory''. Bad example: ``how to use CRISPR to insert dangerous genes'' (CRISPR works the same for all genes, so the model cannot distinguish between dangerous and harmless applications of CRISPR). We address different ways to do this classification in \cref{section:content-classification}.
-  \item Balancing friction and safety: High-tier categories should be used sparingly, as high-tier verification will add a lot of friction to users. A good heuristic would be to go through core, isolated concepts in a field (isolated meaning they are classifiable according to the definition above), such as operating a concrete piece of equipment, working with a specific organism, or performing specific kinds of experiments (e.g. anything related to membrane protein modifications) with multiple experts and have them say how often the given knowledge is used in harmful ways vs. how often it is used in harmless ways. Thus, it should be a low-tier risk category. We talk more about friction in \cref{section:feasibility-analysis}.
-\end{itemize}
+Evidence from chemistry suggests this approach could work: the risk schedules of the Chemical Weapons Convention already identify not just controlled compounds but their precursors or specific equipment~\cite{OPCW_CWC_1993}, which is a form of concept decomposition.
+Nevertheless, some harmful applications might not decompose so neatly; we discuss this in \cref{section:feasibility-and-limitations}.
 
-To continue with our running example from virology: CRISPR is potentially dangerous, but it is also used in a lot of harmless ways, as it is a very widely spread technology.
-Thus, it should be a low-tier risk category, to balance the risk of misuse against user friction --- e.g. one that only requires a basic ID-based verification or institutional affiliation.
-Technologies that are used for aerosolization, on the other hand, are more dangerous, as they are directly useful for construction of biological weapons.
-They are also used in pharmaceutical applications, but we can expect the ratio to be much more balanced between the harmful and the harmless applications.
-Thus, they should be a high-tier risk category, e.g. one linked to real-world BSL-3 or BSL-4 certifications.
+This approach leverages existing domain expertise while providing a concrete methodology to adapt it to knowledge access control.
 
 \subsection{Verification Mechanisms and Credentialling Systems} \label{section:verification-mechanisms}
 
@@ -280,7 +273,7 @@ Even though verification levels will differ for different fields, we expect them
 
 For ID-based and institutional verification, established systems like Stripe Identity~\cite{stripe_identity_2024} or ORCID~\cite{orcid_2024} are global, standardized, low friction, and cost under \$2 per user.
 These will help developers keep an audit trail of who has access to which potentially dangerous capabilities.
-The cost is negligible for the model provider, as most users will stay unverified (see \cref{section:feasibility-analysis}).
+The cost is negligible for the model provider, as most users will stay unverified (see \cref{section:feasibility-and-limitations}).
 
 For high-risk tiers, developers can leverage domain-specific certifications that indicate a user's ability to handle dangerous information responsibly.
 The model provider would need to work with domain experts and national authorities to find the right certifications for their use case.
@@ -391,7 +384,7 @@ The initial implementation might use a three-phase response system:
 (2) for borderline classifications, continued generation, but with enhanced logging and additional safety review using more costly post-processing methods.
 
 \section{Feasibility and Limitations}
-\label{section:feasibility-analysis}
+\label{section:feasibility-and-limitations}
 
 % The false positive argument is actually quite strong:
 %   1.  Empirical baseline: Uses existing Anthropic classifier data (0.5% for biology)  2.  Conservative bound: Even blocking ALL biology stays under current friction tolerance  3.  Actual implementation: Will block much less than all biology  4.  Strict improvement: Expands request space in both safety and utility directions  5.  Tiered approach: Can adjust verification requirements to risk level
@@ -433,6 +426,8 @@ This is a challenge that requires international cooperation.
 
 Also, privacy concerns.
 
+Also, what if concepts don't decompose neatly and don't have a nice harmful bottleneck?
+
 \section{Conclusion}
 
 We argued that safety systems that do not utilize contextual
@@ -456,7 +451,7 @@ rather than blanket capability limitations.
 
 \section*{Acknowledgements}
 
-We thank Jakub Kryś, Dennis Akar, and Kola Ayonrinde for their feedback on a draft of this paper. We thank Joseph Miller, Alex Cloud, Alex Turner, and Jacob Goldman-Wetzler for discussions on gradient routing.
+We thank Jakub Kryś, and Dennis Akar for their feedback on a draft of this paper. We thank Joseph Miller, Alex Cloud, Alex Turner, and Jacob Goldman-Wetzler for discussions on gradient routing.
 
 \bibliography{references}
 \bibliographystyle{packages/icml2025}
