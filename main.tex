@@ -33,6 +33,10 @@
 % if you use cleveref..
 \usepackage[capitalize,noabbrev]{cleveref}
 
+% Configure cleveref names for appendix sections
+\crefname{appendix}{Appendix}{Appendices}
+\Crefname{appendix}{Appendix}{Appendices}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THEOREMS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -308,10 +312,9 @@ The initial implementation might use a three-phase response system:
 \begin{itemize}
   \item Access controls introduce friction from two sources: intentional verification requirements for grey-zone requests and accidental false positives from imperfect classification.
   \item By design, all grey-zone requests require verification even with perfect classifiers. Additionally, classification errors may incorrectly flag clearly harmless requests (e.g., high-school biology as advanced virology).
-    % TODO Actually measure whether it is 0.5%
-  \item To understand the combined impact, consider that only 0.5\% of requests involve biology topics according to Anthropic usage data.
+  \item To understand the combined impact, consider that under 2.5\% of requests involve biology topics according to the Anthropic Economic Index \cite{handa2025economictasksperformedai} (see \cref{appendix:estimating-biology-requests} for more details).
     % TODO Mention that this comparison is a bit stretched because the companies tolerate 1% spread over all users, not concentrated into a very small user base
-  \item Even if ALL biology requests required verification—an extreme upper bound—this would affect fewer users than current system friction. Existing safety systems refuse 1--7\% of benign requests as false positives, with Claude achieving the best rate of 0.4\%. Requiring verification for all biology (0.5\%) would approximately double Claude's friction rate.
+  \item Even if ALL biology requests required verification—an extreme upper bound—this would affect fewer users than current system friction. Existing safety systems refuse 1--7\% of benign requests as false positives, with Claude achieving the best rate of 0.4\%. Requiring verification for all biology (2.43\%) would approximately double Claude's friction rate.
   \item Additionally, verification friction differs qualitatively from current false positives—users can resolve issues through one-time credential verification rather than facing permanent refusal.
   \item Companies can calibrate friction through multiple mechanisms: adjusting grey-zone boundaries, tuning classifier thresholds, and implementing graduated responses (requesting clarification, additional context, or secondary review) rather than immediate verification requirements.
   \item Companies can determine optimal settings empirically through: (1) internal red-team decomposition attacks on concerning capabilities, (2) gradual rollout with logging to measure user impact, and (3) iterative adjustment based on safety-friction tradeoffs.
@@ -455,6 +458,19 @@ We thank Jakub Kryś, Dennis Akar, and Kola Ayonrinde for their feedback on a dr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \appendix
+% Tell cleveref to treat sections in appendix as appendices
+\crefalias{section}{appendix}
+
+\section{Estimating the Number of Requests Related to Biology} \label{appendix:estimating-biology-requests}
+
+To estimate how many requests in current systems are related to biology, we used the second version of the Anthropic Economic Index \cite{handa2025economictasksperformedai}, a dataset of 1 million anonymized conversations from the Free and Pro tiers of Claude.ai.
+
+In the dataset, the conversations are clustered by topic, and the proportion of each topic in the whole dataset is given.
+For example, the topic ``Help with agricultural business, research, and technology projects'' makes up 0.15\% of the requests in the dataset.
+There are three levels of topic granularity; we use the lowest, most granular level.
+
+We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{bio}, \emph{cell}, \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{enzym}, \emph{molecul}, \emph{organism}, \emph{evol}, \emph{plant}, \emph{botanic}, \emph{zool}, \emph{marine}, \emph{aquat}, \emph{anatom}, \emph{physio}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}.
+The total proportion of these requests was 2.43\%.
 
 \section{Risk Tiers and Verification Levels in Bioweapon Construction}
 
