@@ -312,7 +312,7 @@ The initial implementation might use a three-phase response system:
 \begin{itemize}
   \item Access controls introduce friction from two sources: intentional verification requirements for grey-zone requests and accidental false positives from imperfect classification.
   \item By design, all grey-zone requests require verification even with perfect classifiers. Additionally, classification errors may incorrectly flag clearly harmless requests (e.g., high-school biology as advanced virology).
-  \item To understand the combined impact, consider that under 2.5\% of requests involve biology topics according to the Anthropic Economic Index \cite{handa2025economictasksperformedai} (see \cref{appendix:estimating-biology-requests} for more details).
+  \item To understand the combined impact, consider that under 3\% of requests involve biology topics according to the Anthropic Economic Index \cite{handa2025economictasksperformedai} (see \cref{appendix:estimating-biology-requests} for more details).
     % TODO Mention that this comparison is a bit stretched because the companies tolerate 1% spread over all users, not concentrated into a very small user base
   \item Even if ALL biology requests required verification—an extreme upper bound—this would affect fewer users than current system friction. Existing safety systems refuse 1--7\% of benign requests as false positives, with Claude achieving the best rate of 0.4\%. Requiring verification for all biology (2.43\%) would approximately double Claude's friction rate.
   \item Additionally, verification friction differs qualitatively from current false positives—users can resolve issues through one-time credential verification rather than facing permanent refusal.
@@ -469,8 +469,8 @@ In the dataset, the conversations are clustered by topic, and the proportion of 
 For example, the topic ``Help with agricultural business, research, and technology projects'' makes up 0.15\% of the requests in the dataset.
 There are three levels of topic granularity; we use the lowest, most granular level.
 
-We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{bio}, \emph{cell}, \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{enzym}, \emph{molecul}, \emph{organism}, \emph{evol}, \emph{plant}, \emph{botanic}, \emph{zool}, \emph{marine}, \emph{aquat}, \emph{anatom}, \emph{physio}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}.
-The total proportion of these requests was 2.43\%.
+We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{biolo}, \emph{bioch}, \emph{biotec}, \emph{\\bcell}, \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{enzym}, \emph{organism}, \emph{botanic}, \emph{zool}, \emph{marine}, \emph{aquat}, \emph{anatom}, \emph{physio}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}.
+The total proportion of these requests was 2.98\%. (For the second level of granularity, the proportion was 5.27\%, and on the third level, it was 7.34\%, which is likely because various science topics are subsumed under the same general topic.)
 
 \section{Risk Tiers and Verification Levels in Bioweapon Construction}
 
