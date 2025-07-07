@@ -1,17 +1,20 @@
-# My notes, clarifications
+# Nice to have
+
+- [ ] Differentiate better between safety training methods and post-processing attacks
+    - Both could be trained to work with context, but with post-processing this would be faster to achieve, more transparent, and easier to update.
+
+> (10) so much rests on figure 1, it'd be great to have a more detailed figure describing how you want to embed risk tiering into models in the appendix. 
+
+- [ ] Maybe add a diagram: x-axis apparent harmfulness, y-axis actual harmfulness (binary). Dots=requests are a diagonal continuous cluster. Ideal safety method: cuts horizontally. Non-contextual safety methods: cut vertically. Access controls: not ideal, but at least diagonal. Can show gray zone, can show dark-gray. Decomposition attacks move one dot from the right to many dots on the left of some vertical content-based safety method. Context-faking attacks move the dot down; 
+
+# Intro
 
 - [ ] Make it clear what a grey zone question is: a question that could be both good or bad, depending on who is asking and why. 
     - Keeping everything else fixed and improving jailbreaking resilience or resilience to prompt injections won't help us, because if we reject the question, SOMETIMES that will be right, but SOMETIMES that will be wrong. We NEED the context.
     - Decomposition attacks are only there to illustrate the severity of the problem. If grey-zone questions are always let through, attackers will exploit this to decompose their black-zone questions to multiple grey-zone ones.
     - Dilemma: when faced with a grey-zone question, do we reject it or do we answer it?
-- [ ] Differentiate better between safety training methods and post-processing attacks
-    - Both could be trained to work with context, but with post-processing this would be faster to achieve, more transparent, and easier to update.
-- [ ] Maybe change the framing slightly to talk more about government and industry incentives: both want more granularity to enable both more capabilities and more safety at the same time!
+- [ ] Talk more about government and industry incentives: both want more granularity to enable both more capabilities and more safety at the same time!
 - [ ] Explain what kinds of models we are targeting (LLMs, not small specialized models)
-
-> (10) so much rests on figure 1, it'd be great to have a more detailed figure describing how you want to embed risk tiering into models in the appendix. 
-
-- [ ] Maybe add a diagram: x-axis apparent harmfulness, y-axis actual harmfulness (binary). Dots=requests are a diagonal continuous cluster. Ideal safety method: cuts horizontally. Non-contextual safety methods: cut vertically. Access controls: not ideal, but at least diagonal. Can show gray zone, can show dark-gray. Decomposition attacks move one dot from the right to many dots on the left of some veritical content-based safety method. Context-faking attacks move the dot down; 
 
 # Reviewer Notes
 
@@ -23,7 +26,6 @@
 Make this less about gradient routing:
 
 - [ ] Restructure Section 4 (Technical Implementation Options) to briefly present gradient routing as one implementation option among several (post-processing, hybrid approaches), emphasizing other good implementation paths exist (~0.2 pages)
-
 
 > The authors do mention that avoiding false positives and false negatives may nonetheless be a problem for gradient routing, but that "regularization techniques and adjusted detection thresholds, respectively, could mitigate these issues" - expanding on this further could be valuable.
 
