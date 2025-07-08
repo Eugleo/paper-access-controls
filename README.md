@@ -18,22 +18,6 @@
 
 # Reviewer Notes
 
-
-> As mentioned in the paper, the primary technical approach of gradient routing for addressing the capabilities gap has not been empirically validated, and this is an important consideration for feasibility.
-
-> I think the paper would be better served by either focusing exclusively on access controls (and perhaps just a brief discussion of gradient routing as a possible means of implementation). As it stands, the scope seems too broad for a short paper, and some doubts are left unanswered on both fronts.
-
-Make this less about gradient routing:
-
-- [ ] Restructure Section 4 (Technical Implementation Options) to briefly present gradient routing as one implementation option among several (post-processing, hybrid approaches), emphasizing other good implementation paths exist (~0.2 pages)
-
-> The authors do mention that avoiding false positives and false negatives may nonetheless be a problem for gradient routing, but that "regularization techniques and adjusted detection thresholds, respectively, could mitigate these issues" - expanding on this further could be valuable.
-
-Improve the presentation of gradient routing in Section 4:
-
-- [ ] Add mention of UNDO as one way to enable good separation of things.
-- [ ] Detail how the main problem is the one of classification and point to an existing body of work that says classification is possible.
-
 > (8) Would developers actually go along with granting verified users deeper access? Many have refused to do this in the past.
 
 - [ ] Add developer incentives analysis addressing historical reluctance, regulatory pressure, and competitive advantages of surgical vs. blanket restrictions (~0.2 pages)
@@ -44,9 +28,25 @@ Improve the presentation of gradient routing in Section 4:
 
 Expand discussion in Section 5 (System Limitations and Tradeoffs):
 
+- [ ] Add privacy discussion covering data retention, anonymization, and surveillance concerns (~0.2 pages)
 - [X] Add governance and equity discussion addressing institutional bias, alternative credentialing pathways, and oversight mechanisms (~0.3 pages)
 
-- [ ] Add privacy discussion covering data retention, anonymization, and surveillance concerns (~0.2 pages)
+
+
+> As mentioned in the paper, the primary technical approach of gradient routing for addressing the capabilities gap has not been empirically validated, and this is an important consideration for feasibility.
+
+> I think the paper would be better served by either focusing exclusively on access controls (and perhaps just a brief discussion of gradient routing as a possible means of implementation). As it stands, the scope seems too broad for a short paper, and some doubts are left unanswered on both fronts.
+
+Make this less about gradient routing:
+
+- [X] Restructure Section 4 (Technical Implementation Options) to briefly present gradient routing as one implementation option among several (post-processing, hybrid approaches), emphasizing other good implementation paths exist (~0.2 pages)
+
+> The authors do mention that avoiding false positives and false negatives may nonetheless be a problem for gradient routing, but that "regularization techniques and adjusted detection thresholds, respectively, could mitigate these issues" - expanding on this further could be valuable.
+
+Improve the presentation of gradient routing in Section 4:
+
+- [X] Add mention of UNDO as one way to enable good separation of things.
+- [X] Detail how the main problem is the one of classification and point to an existing body of work that says classification is possible.
 
 > What counts as basic identity confirmation? Uploading an ID photo? 
 

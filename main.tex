@@ -214,12 +214,12 @@ However, these qualities are entirely inferred from content supplied by the user
 It should be no surprise, then, that models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to in-chat context, e.g. through multi-round escalation \cite{russinovich2025greatwritearticlethat}.
 Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey zone requests, and thus cannot robustly address the dual-use dilemma.
 
-\subsection{Post-Processing: External Systems React to Context}
+\subsection{Post-Processing: External Systems React to Context} \label{section:post-processing}
 
 Post-processing methods are systems that classify user inputs and model outputs for the purposes of steering the underlying model, and monitoring and filtering its outputs.
 Sometimes, these methods are used for usage monitoring, as is the case with Anthropic's Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld, handa2025economictasksperformedai}, other times, they are used for safety, as with Llama Guard \cite{inan2023llamaguardllmbasedinputoutput} and Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
 However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and is thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
-Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:gradient-routing}.
+Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:content-classification}.
 
 \section{Access Controls as a Solution}
 \label{section:access-controls}
@@ -231,21 +231,21 @@ In this section, we describe an access control system that addresses this proble
 
 We propose a defensive system where grey-zone requests are refused by default, but users can gain access to specific categories of knowledge if they undergo verification.
 
-When a model provider sets up the system, they make two design decisions with the help of domain experts.
-First, they define \textbf{content categories} (\cref{section:content-categories}): groups of sensitive topics organized by domain and risk rating.
-Second, for each content category, they specify a \textbf{verification mechanism} (\cref{section:verification-mechanisms}): the verification process users must complete to access that category.
+When a model provider sets up the system, they will make two design decisions with the help of domain experts.
+First, they will define \textbf{content categories} (\cref{section:content-categories}): groups of sensitive topics organized by domain and risk rating.
+Second, for each content category, they will specify a \textbf{verification mechanism} (\cref{section:verification-mechanisms}): the verification process users must complete to access that category.
 
-Whenever the model generates an output, the system performs \textbf{content classification} (\cref{section:content-classification}) to check if the model's output belongs to any pre-defined content category.
-If the user lacks authorization for the detected category, the system implements appropriate \textbf{system responses} (\cref{section:system-responses}) ranging from enhanced logging to full refusal.
+Whenever the model generates an output, the system will perform \textbf{content classification} (\cref{section:content-classification}) to check if the model's output belongs to any pre-defined content category.
+If the user lacks authorization for the detected category, the system will implement appropriate \textbf{system responses} (\cref{section:system-responses}) ranging from enhanced logging to full refusal.
 
 For example, in biology, basic knowledge and common techniques would remain freely accessible, widespread techniques like CRISPR might require ID-based verification, and dangerous techniques like aerosolization might require government biosafety certifications.
 If a user asks for help with CRISPR laboratory protocols, the system would detect that the request belongs to the low-risk category, check whether the user has verified their ID, and either provide the information or ask them to complete verification first.
 
 This approach directly addresses both sides of the dual-use dilemma.
-Decomposition attacks become harder because the system refuses grey-zone requests by default---attackers would need legitimate credentials rather than clever prompting.
-Simultaneously, verified users can access specialized knowledge that would face blanket restrictions under current approaches.
+Decomposition attacks will become harder because the system will refuse grey-zone requests by default --- attackers would need legitimate credentials rather than clever prompting.
+Simultaneously, verified users will be able to access specialized knowledge that would face blanket restrictions under current approaches.
 
-The main concern is increased user friction, but we show in \cref{section:feasibility-and-limitations} that this should be minimal; among other things, because most users will never make grey-zone requests.
+The main concern is increased user friction, but we argue in \cref{section:feasibility-and-limitations} that this should be minimal; among other things, because most users will never make grey-zone requests.
 
 % TODO Maybe make a figure that describes the 4 parts and make it be figure 1.
 
@@ -262,7 +262,7 @@ For each component, experts would assess how many harmless versus harmful applic
 Evidence from chemistry suggests this approach could work: the risk schedules of the Chemical Weapons Convention already identify not just controlled compounds but their precursors or specific equipment~\cite{OPCW_CWC_1993}, which is a form of concept decomposition.
 Nevertheless, some harmful applications might not decompose so neatly; we discuss this limitation in \cref{section:feasibility-and-limitations}.
 
-\subsection{Verification Mechanisms and Credentialling Systems} \label{section:verification-mechanisms}
+\subsection{Verification Mechanisms} \label{section:verification-mechanisms}
 
 Verification mechanisms are the credential processes that users must complete to access each content category.
 The system will initially vary across model providers, but we expect it to follow a three-tier structure: most content will require no verification, content categories with moderate risk will require basic identity checks or institutional affiliation, and high-risk categories will require domain-specific certifications.
@@ -285,91 +285,50 @@ In the same section, we discuss open problems including equity concerns for user
 
 \subsection{Implementing Content Classification} \label{section:content-classification}
 
-A core requirement of the verification-based access control system
-described in \cref{section:access-controls} is being able to reliably
-classify model outputs into risk categories.
-This classification needs to address key challenges: accuracy with
-minimal false positives, resistance to adversarial attacks, and efficiency.
-We examine two approaches to implementing this classification --- one
-currently available and one theoretical --- and discuss their trade-offs.
+Model providers will need to classify model outputs into content categories during generation.
+Irrespective of the implementation they choose, model providers will need private datasets for each content category, developed with domain experts.
+We examine three possible implementations here, and discuss how classification errors will influence user experience in \cref{section:feasibility-and-limitations}.
 
-\subsubsection{Post-Processing}
+\paragraph{Separate Models}
 
-As discussed in \cref{section:current-methods}, current systems
-already rely on post-processing classifiers that analyse outputs
-before delivery to users.
-These could be adapted for content classification into risk
-categories in an access control system.
-For example, a classifier could be trained to identify moderately
-advanced virology topics and, if detected, could trigger verification
-of user permissions before delivering the output.
+The most straightforward approach is to create separate models with different capabilities, and route users to the appropriate model based on their authorization.
 
-The key advantage of post-processing systems is modularity, as they
-can be developed and updated independently of the generation models
-they oversee.
-However, they face a trade-off between usability (latency) and safety
-\cite{kumar2025freelunchguardrails}: prioritizing low latency can
-create a capability gap between generators and monitors that
-sophisticated language models can exploit
-\cite{jin2024jailbreakinglargelanguagemodels}.
-Despite this limitation, recent post-processing methods show
-acceptable efficiency and resilience toward jailbreaks
-\cite{sharma2025constitutionalclassifiersdefendinguniversal} and
-could provide a practical initial implementation path for
-output-based access control.
+This approach offers supreme robustness against adversarial attacks since unauthorized knowledge is physically absent from the model.
+However, it proves impractical for real deployment, as model providers would need to train and maintain potentially dozens of model variants.
 
-\subsubsection{Gradient Routing} \label{section:gradient-routing}
+\paragraph{Specialized Expert Modules}
 
-To address the capability gap problem in post-processing methods, we
-detail how gradient routing \cite{cloud2024gradientroutingmaskinggradients}
-could be adapted to classify model outputs into risk categories.
-Our adaptation represents a theoretical direction for integrating
-risk category detection directly into model architecture.
-This approach can be combined with post-processing methods and offers
-different trade-offs.
+Instead of maintaining whole separate \emph{models}, model providers could use a single model with separate \emph{expert modules} that activate when their specialized knowledge is needed.
+\Cref{figure:main} illustrates this approach when a user asks about viral surface proteins.
+When the model processes the request, it activates its virology expert module.
+An external system observes this activation, checks the user's credentials, and decides whether to allow the model to deliver the response.
+This method approximates the benefits of physically separated models while avoiding the overhead --- a model provider trains one model but effectively gets multiple models in return.
 
-We propose augmenting models with small expert modules controlled by
-learned gates, as shown in \cref{figure:main}.
-During model training, assuming we have examples from the relevant
-risk categories (e.g., advanced virology), the expert module would be
-made to receive gradients exclusively from these examples.
-Simultaneously, the module's gate would be trained to activate the
-module on these examples using an auxiliary loss function.
-We hypothesize this would lead to the module obtaining specialist
-knowledge from the risk domain, and to the model learning to activate
-the module whenever this knowledge is needed.
+We propose implementing this through a combination of UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
+The goal is to take knowledge that starts out distributed throughout the model and concentrate it into the expert modules.
+The steps resemble the original UNDO: first, unlearn knowledge belonging to any content category from the model, then distil the unlearned model into a new model.
+However, the new model would include expert modules for each content category, and during distillation, gradients from examples in the various content categories would be routed exclusively through their associated expert modules.
+The model would also be explicitly trained to activate the expert modules only when generating content in their associated category.
 
-\Cref{figure:main} illustrates this in the context of the wider
-access control system: when a user requests information about viral
-surface proteins, the model correctly recognizes the domain and
-activates the virology gate, engaging the expert but also triggering
-the verification system. If the user lacks appropriate credentials,
-the system takes the appropriate response --- here, halting the generation.
+This approach would offer several advantages.
+First, it would add almost no latency since the expert modules are small, not activated very often, and there is no separate post-processing step.
+Second, it could provide strong robustness: even if an attacker prevents the activation of an expert module, the resulting output lacks the specialized knowledge.
+Third, since the model is trained to activate the category-specific experts when they are needed, it has incentives to learn to recognize the content categories.
+This stands in contrast to ex-post probing methods, which do not offer such guarantees.
+While this method remains empirically unvalidated for our use case, the properties above make it worth investigating.
 
-This approach eliminates the efficiency-capability
-trade-off inherent in post-processing methods: the risk category
-classifier is embedded within the larger model, so there is no
-capability gap, and because the gated module is small and integrated
-into the model's forward pass, it is computationally efficient with
-minimal impact on latency.
+\paragraph{Post-Processing}
 
-Crucially, during standard training, the model is naturally incentivized to identify risk category information in inputs and surface this in its representation space, as this is directly linked to enabling the right specialized module at the right time.
-This approach differs fundamentally from post hoc methods like probing or sparse autoencoders \cite{cunningham2023sparseautoencodershighlyinterpretable}, which cannot guarantee the model actually operates with the concepts they attempt to identify.
+Post-processing methods offer the most proven approach, with methods like constitutional classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} already demonstrating effectiveness in production systems.
+These classifiers could be adapted to detect content categories and trigger checks of user verifications.
 
-Additionally, it resolves the adversarial dynamic (model vs. monitors, helpful vs. harmless) common in AI safety by aligning training incentives with safety objectives.
-
-Several technical challenges remain.
-While gradient routing has shown promise in creating specialized modules in smaller models, its effectiveness in larger language models, particularly with the gated-expert architecture, requires empirical validation.
-Other key challenges include preventing false positives and false negatives, though regularization techniques and adjusted detection thresholds, respectively, could mitigate these issues.
-
-% TODO Better explain why FT is useful
-Our approach also requires identifying risk categories during initial training, prompting research into adaptation of gradient routing for fine-tuning scenarios.
-Despite these challenges, the approach offers promising theoretical properties that warrant experimental investigation.
+In addition to being proven, post-processing methods are highly practical since they operate independently of the model, allowing for rapid deployment and iteration.
+However, they face a capability gap problem: to minimize latency, the model is sometimes more powerful than its post-processing system, and adversaries can exploit this to evade detection \cite{jin2024jailbreakinglargelanguagemodels, kumar2025freelunchguardrails}.
 
 \subsection{System Responses} \label{section:system-responses}
 
 System responses --- the way the system reacts when a user makes a request they do not have the authorization to make --- can vary based on risk category and the confidence of the classification.
-In a way, this can balance out the friction added by difficult-to-classify topics or imperfect classifiers.
+This can balance out the friction added by difficult-to-classify topics or imperfect classifiers.
 
 The initial implementation might use a three-phase response system:
 (1) for outputs belonging to a risk category with high-confidence, immediate refusal with a specific explanation of the verification required;
@@ -381,6 +340,8 @@ The initial implementation might use a three-phase response system:
 % The false positive argument is actually quite strong:
 %   1.  Empirical baseline: Uses existing Anthropic classifier data (0.5% for biology)  2.  Conservative bound: Even blocking ALL biology stays under current friction tolerance  3.  Actual implementation: Will block much less than all biology  4.  Strict improvement: Expands request space in both safety and utility directions  5.  Tiered approach: Can adjust verification requirements to risk level
 % The argument chain holds together well. The author successfully shows that even a very conservative upper bound (blocking all biology) results in acceptable friction levels, and the actual system would have much lower friction while providing both safety and utility improvements.
+
+What about faulty classifiers, e.g. false positives?
 
 \textbf{User friction analysis}.
 \begin{itemize}
