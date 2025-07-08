@@ -260,36 +260,28 @@ For instance, for growing and spreading a dangerous BSL-3 pathogen, this might i
 For each component, experts would assess how many harmless versus harmful applications it enables, then assign it to an appropriate risk category: widely useful techniques with many benign applications, such as using CRISPR, would remain in low-risk categories with minimal verification, while specialized techniques with limited legitimate uses, such as aerosolization of bacteria, would require higher verification levels.
 
 Evidence from chemistry suggests this approach could work: the risk schedules of the Chemical Weapons Convention already identify not just controlled compounds but their precursors or specific equipment~\cite{OPCW_CWC_1993}, which is a form of concept decomposition.
-Nevertheless, some harmful applications might not decompose so neatly; we discuss this in \cref{section:feasibility-and-limitations}.
-
-This approach leverages existing domain expertise while providing a concrete methodology to adapt it to knowledge access control.
+Nevertheless, some harmful applications might not decompose so neatly; we discuss this limitation in \cref{section:feasibility-and-limitations}.
 
 \subsection{Verification Mechanisms and Credentialling Systems} \label{section:verification-mechanisms}
 
-Developers will leverage existing verification infrastructure, as they do not have the expertise to build their own.
-They will have to consult domain experts to find systems that are internationally standardized, globally available, and respect privacy.
+Verification mechanisms are the credential processes that users must complete to access each content category.
+The system will initially vary across model providers, but we expect it to follow a three-tier structure: most content will require no verification, content categories with moderate risk will require basic identity checks or institutional affiliation, and high-risk categories will require domain-specific certifications.
+In each case, model providers will build on existing verification infrastructure rather than creating new systems, consulting domain experts to identify appropriate mechanisms for each field.
 
-Even though verification levels will differ for different fields, we expect them to follow a general template: no verification for the lowest tier, ID-based or institutional verifications for low-risk tiers, and comprehensive verifications based on existing certification infrastructure for high-risk tiers.
+For low-risk content categories, model providers could use established identity verification services like Stripe Identity~\cite{stripe_identity_2024} or institutional systems like ORCID~\cite{orcid_2024} which provide global, standardized, low-friction solutions with one-time costs under \$2 per user.
+These systems would serve primarily to maintain audit trails for post-incident investigation and provide a deterrent effect, rather than as security barriers for truly dangerous knowledge.
 
-For ID-based and institutional verification, established systems like Stripe Identity~\cite{stripe_identity_2024} or ORCID~\cite{orcid_2024} are global, standardized, low friction, and cost under \$2 per user.
-These will help developers keep an audit trail of who has access to which potentially dangerous capabilities.
-The cost is negligible for the model provider, as most users will stay unverified (see \cref{section:feasibility-and-limitations}).
+High-risk content categories could leverage existing domain-specific certifications that indicate users' ability to handle sensitive information and materials responsibly.
+Model providers would work with domain experts and national authorities to identify appropriate certifications, adapting existing physical-world credential systems to knowledge access control.
+For biological content categories, for example, the system might draw on governmental certifications for handling high-BSL organisms we mentioned in \cref{section:content-categories}, and analogous certifications in countries outside the US.
 
-For high-risk tiers, developers can leverage domain-specific certifications that indicate a user's ability to handle dangerous information responsibly.
-The model provider would need to work with domain experts and national authorities to find the right certifications for their use case.
-For example, while restricting access to information relevant to bioweapon construction, they could leverage biosafety level (BSL) certifications in the US~\cite{CDC_BMBL_2020}, or their equivalents in other countries~\cite{EU_Directive_2000_54_EC}, while for chemical weapons, they could leverage the Schedules from the Chemical Weapons Convention~\cite{OPCW_CWC_1993}.
-For example, access to information about aerosolization techniques of biological agents could require government certification for biosafety level 3 (BSL-3), while access to information about membrane protein modifications might require BSL-4.
+Governance of verification systems, including the requirements and the appeals processes, will initially vary across providers.
+Over time, successful approaches may inform industry coordination and eventual standardization, similar to how content moderation and know-your-customer standards evolved.
 
-Existing certifications may be overly broad for our needs.
-For example, biosafety certifications verify physical equipment for handling pathogens, which is overly strict for our simpler use case of restricting access to knowledge.
-We concede that the existing certification systems are just an imperfect proxy, but we believe they would be iteratively refined as the technology matures.
-We also note that current legislation like the EU AI Act [cite] favours broad capability restrictions for high-risk domains, which means that our system, however imperfect, might enable access for at least some users where there would be none under the status quo.
-
-Governance and decision-making processes would initially remain company-internal, with developers balancing user friction against safety benefits based on usage data and incident reports.
-Companies could refine their systems through partial rollouts and iterative testing before full deployment.
-While no external oversight would exist initially, we anticipate that successful implementations would eventually inform industry standards or safety certification frameworks as the regulatory landscape matures.
-For user disputes regarding credential rejections or risk category assignments, companies would need to establish manual appeals processes, though we expect these to be infrequent given that most users will never encounter any verification requirements.
-If the approach proves effective, decision-making authority may shift toward industry consortiums or standardization organizations that can coordinate risk categories and verification levels across providers, similar to existing content moderation or KYC standards in other industries.
+This approach faces several limitations.
+For high-risk categories, relying on existing certifications may be overly restrictive, potentially excluding some users who should have access.
+However, we argue in \cref{section:feasibility-and-limitations} that knowledge in high-risk categories would likely face blanket restrictions anyway, and our approach enables access for at least some verified users instead of none.
+In the same section, we discuss open problems including equity concerns for users in developing countries and privacy implications.
 
 \subsection{Implementing Content Classification} \label{section:content-classification}
 
@@ -427,6 +419,11 @@ This is a challenge that requires international cooperation.
 Also, privacy concerns.
 
 Also, what if concepts don't decompose neatly and don't have a nice harmful bottleneck?
+
+Existing certifications may be overly broad for our needs.
+For example, biosafety certifications verify physical equipment for handling pathogens, which is overly strict for our simpler use case of restricting access to knowledge.
+We concede that the existing certification systems are just an imperfect proxy, but we believe they would be iteratively refined as the technology matures.
+We also note that current legislation like the EU AI Act [cite] favours broad capability restrictions for high-risk domains, which means that our system, however imperfect, might enable access for at least some users where there would be none under the status quo.
 
 \section{Conclusion}
 
