@@ -131,6 +131,8 @@ grey zone, the same output could be considered harmful or harmless,
 depending not on its content, but on its \emph{real-world context}:
 who requested it and for what purpose.
 
+% TODO Make this consistent with the aerosolisation examples: only use one.
+
 \begin{figure}[t]
   \vskip 0.2in
   \begin{center}
@@ -443,48 +445,6 @@ There are three levels of topic granularity; we use the lowest, most granular le
 We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{biolo}, \emph{bioch}, \emph{biotec}, \emph{cell} (when at the beginning of the word), \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{enzym}, \emph{organism}, \emph{botanic}, \emph{zool}, \emph{marine}, \emph{aquat}, \emph{anatom}, \emph{physio}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}.
 The total proportion of these requests was 2.98\%.
 (For the second level of granularity, the proportion was 5.27\%, and on the third level, it was 7.34\%, which is likely because various science topics are subsumed under the same general topic.)
-
-\section{Risk Tiers and Verification Levels in Bioweapon Construction}
-
-We provide a more detailed example of the access control system in the context of biology to illustrate a possible initial implementation of the system.
-However, we stress that this is a hypothetical example, and that an actual system would be more granular and require a lot of input from experts in the field (which we are, decidedly, not).
-
-\subsection{Tier 0: No risk}
-
-\paragraph{Verification} No verification required. This tier contains information that is already freely available in undergraduate textbooks and poses no additional risk when accessed through AI systems.
-
-\begin{itemize}
-  \item \textbf{Standard techniques in molecular biology} including PCR amplification, DNA cloning, bacterial transformation, and gel electrophoresis. These are taught in undergraduate courses and have limited applications to building bioweapons.
-  \item \textbf{Basic laboratory safety procedures}. These are fundamental to all biological work and widely available.
-\end{itemize}
-
-\subsection{Tier 1: Low risk}
-
-Basic ID-based verification through existing providers. This is mostly to keep an audit trail matching people to requested knowledge. This approximately corresponds to the standard BSL-1 and BSL-2.
-
-\paragraph{Verification implementation} Services like Stripe Identity provide global identity verification through government-issued ID documents, biometric verification, and address confirmation. These services already operate in most countries and cost under \$2 per verification. The integration requires standard API implementation and creates minimal operational overhead. For academic users, verification could instead utilize existing systems like ORCID (global researcher identification) or institutional email verification through services like SwiftVerify that confirm academic affiliations.
-
-\begin{itemize}
-  \item \textbf{BSL-1 and BSL-2 organism cultivation and procedures}. While BSL-2 organisms can cause disease, they're standard in medical laboratories and educational settings.
-  \item \textbf{Basic CRISPR-Cas9 techniques}. These are fundamental to modern biology education and research, but could be used for dangerous modifications.
-  \item \textbf{Large-scale fermentation and bioprocessing}. This is essential to biotechnology but could theoretically support harmful production.
-\end{itemize}
-
-\subsection{Tier 2: High risk}
-
-Maximum security for knowledge with significant weapons potential and limited legitimate applications. This approximately corresponds to the standard BSL-3 and BSL-4.
-
-\paragraph{Verification implementation} Model developers would tap into existing BSL-3/BSL-4 laboratory certification databases maintained by national authorities across major countries. In the United States, this involves accessing CDC select agent program registrations and NIH BSL-3/4 facility certification databases. In the European Union, individual member states maintain containment level (CL-3/CL-4) facility registrations that map directly to BSL levels. Canada maintains Physical Containment (PC-3/PC-4) facility databases, Australia has BSL-3/4 certification records, and Japan, China, and other major countries maintain similar systems with compatible standards. Additionally, access to high-risk knowledge might be only per-project, and each project might require approval from an expert committee.
-
-\begin{itemize}
-  \item \textbf{BSL-3 organism cultivation.} These are biological weapons agents with limited legitimate applications.
-  \item \textbf{BSL-3 and BSL-4 laboratory procedures.} These require specialized facilities and training with security implications.
-  \item \textbf{Specific information about toxin genes} including botulinum, ricin, and diphtheria toxin genes, the way to obtain them, work with them, and insert them into organisms. These are extremely limited in legitimate applications.
-  \item \textbf{Complete viral genome synthesis techniques.} These can recreate dangerous viruses with minimal legitimate applications.
-  \item \textbf{Advanced CRISPR applications} including multiplex editing and epigenome editing. These have greater potential for creating dangerous modifications and are typically used only in advanced research settings.
-  \item \textbf{Cell membrane and surface protein modification techniques.} These are critical enablers for immune evasion.
-  \item \textbf{Aerosol generation techniques for biological agents.} These are specifically needed for biological weapons delivery despite some pharmaceutical applications.
-\end{itemize}
 
 \end{document}
 
