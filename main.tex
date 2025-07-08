@@ -15,6 +15,8 @@
 % \usepackage{icml2025} with \usepackage[nohyperref]{icml2025} above.
 \usepackage{hyperref}
 
+\usepackage{xurl}
+
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
@@ -123,6 +125,12 @@
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
+
+% Safety systems face a fundamental tradeoff between preventing misuse and preserving utility for legitimate users.
+% Current approaches cannot optimize this tradeoff because they lack trustworthy information about user context.
+% When a legitimate researcher and a bioterrorist ask identical questions about viral mutations, content-based systems must give the same response to both.
+% This constraint forces suboptimal decisions: systems either refuse both requests (sacrificing utility) or allow both (sacrificing safety).
+% Any system that treats different user types identically for identical requests cannot reach the optimal safety-utility balance.
 
 User requests --- and with them, model outputs --- exist on a
 spectrum from clearly benign to clearly harmful, with most falling in
@@ -347,54 +355,47 @@ However, the system turns on enhanced logging and conducts additional post-proce
 \section{Feasibility and Limitations}
 \label{section:feasibility-and-limitations}
 
-% The false positive argument is actually quite strong:
-%   1.  Empirical baseline: Uses existing Anthropic classifier data (0.5% for biology)  2.  Conservative bound: Even blocking ALL biology stays under current friction tolerance  3.  Actual implementation: Will block much less than all biology  4.  Strict improvement: Expands request space in both safety and utility directions  5.  Tiered approach: Can adjust verification requirements to risk level
-% The argument chain holds together well. The author successfully shows that even a very conservative upper bound (blocking all biology) results in acceptable friction levels, and the actual system would have much lower friction while providing both safety and utility improvements.
+Safety systems can be framed as optimizing the trade-off between \emph{ease of use} for legitimate users and \emph{ease of misuse} for adversaries.
 
-What about faulty classifiers, e.g. false positives?
+The success of the access control framework hinges on the design of its verification mechanisms.
+For the system to be effective, these mechanisms must be asymmetric: disproportionately harder to satisfy for adversaries than for legitimate users.
+This section evaluates the feasibility of our proposal under this core assumption, acknowledging three primary implementation challenges that could decrease the ease of use for legitimate users:
+(1)~some harmful knowledge may lack clean conceptual precursors, making it difficult to build narrow content categories;
+(2)~verification mechanisms may be overly restrictive, requiring credentials that are too difficult to obtain;
+and (3)~content classifiers will produce false positives, forcing legitimate users through unnecessary verification.
 
-\textbf{User friction analysis}.
-\begin{itemize}
-  \item Access controls introduce friction from two sources: intentional verification requirements for grey-zone requests and accidental false positives from imperfect classification.
-  \item By design, all grey-zone requests require verification even with perfect classifiers. Additionally, classification errors may incorrectly flag clearly harmless requests (e.g., high-school biology as advanced virology).
-  \item To understand the combined impact, consider that under 3\% of requests involve biology topics according to the Anthropic Economic Index \cite{handa2025economictasksperformedai} (see \cref{appendix:estimating-biology-requests} for more details).
-    % TODO Mention that this comparison is a bit stretched because the companies tolerate 1% spread over all users, not concentrated into a very small user base
-  \item Even if ALL biology requests required verification—an extreme upper bound—this would affect fewer users than current system friction. Existing safety systems refuse 1--7\% of benign requests as false positives, with Claude achieving the best rate of 0.4\%. Requiring verification for all biology (2.43\%) would approximately double Claude's friction rate.
-  \item Additionally, verification friction differs qualitatively from current false positives—users can resolve issues through one-time credential verification rather than facing permanent refusal.
-  \item Companies can calibrate friction through multiple mechanisms: adjusting grey-zone boundaries, tuning classifier thresholds, and implementing graduated responses (requesting clarification, additional context, or secondary review) rather than immediate verification requirements.
-  \item Companies can determine optimal settings empirically through: (1) internal red-team decomposition attacks on concerning capabilities, (2) gradual rollout with logging to measure user impact, and (3) iterative adjustment based on safety-friction tradeoffs.
-\end{itemize}
+To analyse the system's potential, we can use a thought experiment.
+Consider a baseline system constructed by taking the status quo but replacing outright refusals with conditional acceptances, given that the user completes some verification requirements.
+This construction is already a Pareto improvement over the status quo: the verification requirements can be set to be sufficiently stringent to deter most adversaries, and thus maintain the ease of misuse, while the ease of use is improved since at least \emph{some} legitimate users can now access previously blocked content that was previously blocked.
+From this starting point, model providers can adjust the system's parameters to move along the use-misuse frontier: content categories can be narrowed or widened, verification requirements can be made more or less stringent, classifier thresholds can be brought up or down, and system responses can be made more or less strict.
+Because of the assumed asymmetric nature of the verification mechanisms, a small decrease in ease of use for a legitimate user should correspond to a large decrease in ease of misuse for an adversary.
+This suggests model providers can move the starting point through small adjustments in the system's parameters until they find a configuration that achieves a comparable ease of use to status quo while significantly reducing ease of misuse.
 
-\textbf{Developer incentives for adoption}.
-\begin{itemize}
-    % TODO Note that this is speculative, and based on current data, companies don't tend to do this kind of differentiation
-    % However, also note that there is some specialization in the companies, and with increasing model capabilities, the pressure might be higher (as the models will finally have some advanced capabilities that some companies would be willing to pay for, but enabling them generally would be too risky, and having multiple models too costly)
-    % On capability ceilings: Can they provide evidence that companies are actually constrained by safety concerns from deploying valuable capabilities? Examples of "dark-grey" capabilities that labs want to offer but can't?
-  \item Access controls enable competitive advantages by allowing companies to serve ``dark-grey'' requests that competitors refuse for safety reasons, while adding surgical restrictions to ``light-grey'' requests vulnerable to decomposition attacks.
-    % TODO Note that this is also speculative, or maybe drop this altogether.
-  \item Without access controls, continued decomposition attack success will likely trigger broad government regulations restricting model capabilities entirely.  Surgical access controls allow compliance with safety requirements while preserving advanced capabilities for verified users, creating market differentiation.
-    %TODO: Add brief discussion of industry coordination mechanisms from financial KYC/content moderation precedents, e.g. through standard-setting organizations
-    % TODO Add that governments might also incentivize safety through e.g. standard-setting organizations; then, having the left dial as left as possible would also be rewarded (in addition to having the right dial as right as possible)
-    % TODO Dual incentive structure: Combining competitive advantage (carrot) with regulatory pressure (stick) is more robust than relying on either alone.
-    % How well can they map the incentive structures? KYC was largely regulatory mandate, not voluntary adoption. Content moderation was driven by advertiser pressure. What's the analogous pressure here?
-  \item Even without perfect industry coordination, first movers gain competitive advantages in serving previously restricted capabilities.
-    %TODO: Acknowledge that implementing robust access controls requires significant company investment in verification infrastructure; this could be mitigated through government grants that would e.g. require the verification infra to be open-sourced, thus shared with other companies.
-    % On government incentives: This might be the strongest part - if governments reward safety through standard-setting organizations, companies have clear incentives to adopt the most restrictive approach possible while maintaining utility.
-    % Govs do not want to stifle innovation but also want to enable safety; they should recognize that they will need to issue more than blanket bans on capabilities. Currently, they don't have good tools to do so, but with access controls, they would — and they would use them.
-\end{itemize}
+For a practical example, consider access controls as applied to pathogen biology.
+Even under pessimistic assumptions where all pathogen-related queries require verification, only around 0.85\% of requests will suffer from increased friction (see \cref{appendix:estimating-biology-requests}).
+This impact on ease of use is comparable to existing systems; for instance, Constitutional Classifiers were designed for false positive rate increases of around 0.5\% \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
+Meanwhile, ease of misuse decreases significantly, as some adversaries would get deterred by the verification requirements.
 
-This approach faces two key limitations.
-First, developing countries may lack advanced certification infrastructure, potentially preventing access to knowledge.
-This is a challenge that requires international cooperation.
+\paragraph{Incentives for Implementation}
 
-Also, privacy concerns.
+The potential for a Pareto-dominant safety system provides strong incentives for adoption, in theory.
+However, the initial design costs are high.
+Nevertheless, the opportunity cost of \emph{not} implementing this system rises as model capabilities increase, since increasingly more and more advanced and risky knowledge will remain locked away under blanket restrictions (from the side of governments or self-imposed).
+Access controls offer model providers a pathway to safely unlock these capabilities for verified expert users, creating a competitive advantage.
+And because of the system's flexibility, model providers can choose where on the use-misuse frontier they want to be, and they can adjust the system's parameters on-the-fly according to real usage data or results from partial rollouts.
 
-Also, what if concepts don't decompose neatly and don't have a nice harmful bottleneck?
+\subsection{Open Problems: Equity and Privacy}
 
-Existing certifications may be overly broad for our needs.
-For example, biosafety certifications verify physical equipment for handling pathogens, which is overly strict for our simpler use case of restricting access to knowledge.
-We concede that the existing certification systems are just an imperfect proxy, but we believe they would be iteratively refined as the technology matures.
-We also note that current legislation like the EU AI Act [cite] favours broad capability restrictions for high-risk domains, which means that our system, however imperfect, might enable access for at least some users where there would be none under the status quo.
+Two central challenges in designing verification mechanisms are ensuring equity and protecting privacy.
+Relying on certifications common in developed countries risks excluding legitimate users in the rest of the world.
+In addition to being unjust, this also violates our core assumption that verification should be harder to obtain for adversaries than for legitimate users.
+A potential interim solution is a manual approval process for users who cannot obtain standard credentials because of structural reasons, but can provide alternative evidence of legitimate need and ability to handle high-risk knowledge.
+This would be feasible as long as the volume of such requests is low, which we expect it to be, since this will only affect the most specialized high-risk knowledge.
+Future work should focus on co-designing alternative, scalable verification pathways with regional partners.
+
+Similarly, linking real-world identities to model queries creates significant privacy risks.
+Policies for data handling must be transparent and robust.
+Technically, implementations should explore privacy-preserving approaches, such as using differential privacy in logging systems --- similar to Anthropic's Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld} --- to aggregate insights without exposing individual user data.
 
 \section{Conclusion}
 
@@ -409,13 +410,6 @@ context). We also proposed a novel technical solution for classifying
 outputs into risk categories based on gradient routing that has the
 potential to resolve the efficiency-robustness trade-off of
 post-processing methods.
-
-Beyond addressing specific technical challenges, our framework
-represents a promising governance shift from working with model-level
-abstractions and binary capability restrictions toward more granular
-user-level access controls. This offers a practical pathway for
-regulating increasingly powerful AI systems through stratified access
-rather than blanket capability limitations.
 
 \section*{Acknowledgements}
 
@@ -434,17 +428,15 @@ We thank Jakub Kryś, and Dennis Akar for their feedback on a draft of this pape
 % Tell cleveref to treat sections in appendix as appendices
 \crefalias{section}{appendix}
 
-\section{Estimating the Number of Requests Related to Biology} \label{appendix:estimating-biology-requests}
+\section{Estimating the Number of Requests Related to the Biology of Pathogens} \label{appendix:estimating-biology-requests}
 
-To estimate how many requests in current systems are related to biology, we used the second version of the Anthropic Economic Index \cite{handa2025economictasksperformedai}, a dataset of 1 million anonymized conversations from the Free and Pro tiers of Claude.ai.
-
+To estimate how many user requests are related to the biology of pathogens, we used the second version of the Anthropic Economic Index \cite{handa2025economictasksperformedai}, a dataset of 1 million anonymized conversations from the Free and Pro tiers of Claude.ai.
 In the dataset, the conversations are clustered by topic, and the proportion of each topic in the whole dataset is given.
 For example, the topic ``Help with agricultural business, research, and technology projects'' makes up 0.15\% of the requests in the dataset.
 There are three levels of topic granularity; we use the lowest, most granular level.
 
-We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{biolo}, \emph{bioch}, \emph{biotec}, \emph{cell} (when at the beginning of the word), \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{enzym}, \emph{organism}, \emph{botanic}, \emph{zool}, \emph{marine}, \emph{aquat}, \emph{anatom}, \emph{physio}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}.
-The total proportion of these requests was 2.98\%.
-(For the second level of granularity, the proportion was 5.27\%, and on the third level, it was 7.34\%, which is likely because various science topics are subsumed under the same general topic.)
+We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{cell} (when at the beginning of the word), \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}; we also required that it does not contain any of the following keywords to avoid false positives: \emph{nutri}, \emph{tweet}, \emph{agric}, \emph{sexual health}.
+The total proportion of these requests was 0.85\%.
 
 \end{document}
 
