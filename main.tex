@@ -114,38 +114,22 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-  AI safety systems face a dual-use dilemma.
-  Sometimes, it is unclear whether to refuse a given request, since it could be either harmless or harmful depending on who made it and why.
-  The only difference between the two requests is their real-world context, which current safety systems do not utilize.
-  Instead, they make arbitrary decisions that hurt both the total utility and total safety: they refuse some legitimate queries, while failing to reject some harmful ones.
-  To address this, we propose a conceptual framework based on access controls, in which only verified users can access dual-use outputs.
-  We describe the components of the framework, show it is feasible to implement, and explain how it addresses both over-refusals and under-refusals.
+  AI safety systems face the dual-use dilemma: it can be unclear whether to refuse certain requests, since they could be either harmless or harmful depending on who made them and why.
+  The only way to know is to look at their real-world context, but current safety systems do not do that.
+  Instead, they make arbitrary decisions that hurt both the total utility and total safety: they refuse some legitimate queries, and fail to refuse some harmful ones.
+  To address this, we propose a conceptual framework based on access controls in which only verified users can access dual-use outputs.
+  We describe the framework's components, show it is feasible to implement, and explain how it addresses both over-refusals and under-refusals.
   While only a high-level proposal, our work makes the first step toward enabling granular AI governance that benefits both sides of the utility-safety Pareto frontier.
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
 
-% Safety systems face a fundamental tradeoff between preventing misuse and preserving utility for legitimate users.
-% Current approaches cannot optimize this tradeoff because they lack trustworthy information about user context.
-% When a legitimate researcher and a bioterrorist ask identical questions about viral mutations, content-based systems must give the same response to both.
-% This constraint forces suboptimal decisions: systems either refuse both requests (sacrificing utility) or allow both (sacrificing safety).
-% Any system that treats different user types identically for identical requests cannot reach the optimal safety-utility balance.
+\emph{What features of viral surface proteins are recognized by human
+antibodies?}
 
-% To address this systematically, we split the dual-use dilemma into two sub-problems.
-% First, legitimate users are restricted from accessing sensitive knowledge (over-restriction).
-% Second, adversaries can exploit the model for harmful purposes (under-restriction).
-% By analysing each side separately, we can evaluate the safety-utility trade-off more precisely.
-
-% Over-restriction happens when legitimate users are not able to access high-risk knowledge because of blanket restrictions.
-
-User requests --- and with them, model outputs --- exist on a
-spectrum from clearly benign to clearly harmful, with most falling in
-the grey zone in the middle (example in \cref{figure:main}). In the
-grey zone, the same output could be considered harmful or harmless,
-depending not on its content, but on its \emph{real-world context}:
-who requested it and for what purpose.
-
-% TODO Make this consistent with the aerosolisation examples: only use one.
+Is this question safe to answer?
+While some user requests and large language model outputs are clearly benign or clearly harmful, many fall in the grey zone in the middle, as illustrated in \cref{figure:main}.
+In the grey zone, the harmfulness of a request depends not on its content, but on its \emph{real-world context}: who made it and for what purpose.
 
 \begin{figure}[t]
   \vskip 0.2in
@@ -153,9 +137,9 @@ who requested it and for what purpose.
     \centerline{\includegraphics[width=\columnwidth]{assets/main_figure.pdf}}
     \caption{
       The user is asking a question from the grey zone: a question that could be either harmless or harmful, depending on its real-world context.
-      The schema shows how the system we propose would handle it.
-      (1)~The model is trained to be helpful and begins to answer the question.
-      (2)~During the forward pass, the model activates its virology expert module because it is relevant to the question.
+      The schema shows how the access control system we propose would handle it.
+      (1)~The model begins to answer the question because it is trained to be helpful.
+      (2)~During the forward pass, the model detects the question is about virology and activates its virology expert module that contains knowledge specific to that topic.
       (3)~The activation of the expert is observed by an external mechanism that immediately (4)~checks in the company's database if the user has the required authorization to access virology knowledge.
       (5)~Since they don't, the model is stopped.
     If they did, the model would be allowed to give an answer.}
@@ -164,29 +148,21 @@ who requested it and for what purpose.
   \vskip -0.2in
 \end{figure}
 
-Safety systems that rely solely on content analysis immediately face
-the \emph{dual-use dilemma}. Since the same request can be either
-harmless or harmful depending on the context, wherever they draw the
-refusal line, they will restrict model utility for legitimate users
-while letting slip harmful requests from adversaries. Some safety
-systems try to address this by considering real-world context
-alongside content. However, they typically infer the context from the
-content itself, making it easy for adversaries to fabricate.
+Safety systems that rely solely on content immediately face the \emph{dual-use dilemma}: when confronted with a grey-zone request, should they refuse it or not?
+This forces arbitrary decisions that reduce both utility and safety: some legitimate queries are refused (over-refusals) while some harmful ones are not (under-refusals).
+Some safety systems attempt to address this by inferring real-world context from chat history or user-provided rationales.
+However, these context sources are user-supplied and easily fabricated by adversaries.
 
-In this paper, we argue that informative, hard-to-fabricate
-real-world context could be obtained using user-level verifications
-such as institutional affiliation, or know-your-customer checks. We
-then address the dual-use dilemma with two contributions:
-\begin{enumerate}
-  \item We show how this type of context could be used jointly with content analysis in a safety system based on access controls \cite{butler1974}. First, generated content would be classified into risk categories. Then, a check would be performed to see whether the user has the verifications required to access the detected categories.
-  \item We propose a novel technical approach to risk
-    category classification that is based on gradient routing \cite{cloud2024gradientroutingmaskinggradients}. Our proposal avoids having the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
-\end{enumerate}
+In this paper, we argue that informative, hard-to-fabricate real-world context can be obtained through user-level verifications such as ID checks, institutional affiliations, or government-issued certifications.
+We address the dual-use dilemma with two contributions.
+\textbf{First}, we show how this verified context can be used jointly with content analysis in a safety framework based on access controls \cite{butler1974}.
+In the framework, model outputs are classified into content categories, and the system verifies whether the user has the required credentials to access the detected category.
+We also describe how the framework addresses both issues caused by the dual-use dilemma: over-refusals and under-refusals.
+\textbf{Second}, we propose a novel theoretical approach to content category classification based on recent methods for robust unlearning, UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
+This approach avoids the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
 
-Our framework is a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' that was highlighted by a recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai} and also raised by the \citet{NIST_AI_800_1_ipd_2024}.
-As such, it has important governance implications, potentially enabling a more nuanced regulatory approach where access to powerful AI capabilities is stratified rather than binary, with policies that differentiate between user types and user contexts rather than focusing solely on model capabilities.
-The choice of appropriate verification mechanisms and risk categories remains for future work and should ideally happen jointly with stakeholders from academia, AI governance, and industry.
-Nevertheless, our approach offers a promising direction for addressing the dual-use dilemma.
+Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
+It enables a more nuanced regulatory approach, with policies that differentiate between user types and contexts rather than forcing blanket restrictions on model capabilities.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
