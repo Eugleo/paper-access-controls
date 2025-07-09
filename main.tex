@@ -302,8 +302,9 @@ In the same section, we discuss open problems including equity concerns regardin
 \subsection{Implementing Content Classification} \label{section:content-classification}
 
 Model providers will need to classify model outputs into content categories during generation.
-We examine three possible implementations in this section, and discuss how classification errors will influence user experience in \cref{section:feasibility-and-limitations}.
-Regardless of the implementation they choose, model providers will need private datasets for each content category, developed with domain experts.
+We examine three possible implementations below.
+While none of these approaches have been empirically validated for risk category classification specifically, each represents a plausible technical path that could be developed and evaluated by practitioners interested in implementing access controls.
+We leave the discussion of how classification errors might influence user experience for \cref{section:feasibility-and-limitations}.
 
 \paragraph{Separate Models}
 
@@ -313,6 +314,8 @@ This approach offers strong robustness against adversarial attacks since unautho
 However, this approach proves impractical for real deployment, as model providers would need to train and maintain potentially dozens of model variants.
 
 \paragraph{Specialized Expert Modules}
+
+% TODO This approach offers a unique robustness property: if an adversary successfully prevents expert module activation to avoid detection, they simultaneously prevent access to the specialized knowledge stored in that module, making the attack self-defeating.
 
 Instead of maintaining separate models, model providers could use a single model with separate expert modules that activate when their specialized knowledge is required.
 \Cref{figure:main} illustrates this approach when a user asks about viral surface proteins.
@@ -355,47 +358,60 @@ However, the system turns on enhanced logging and conducts additional post-proce
 \section{Feasibility and Limitations}
 \label{section:feasibility-and-limitations}
 
-Safety systems can be framed as optimizing the trade-off between \emph{ease of use} for legitimate users and \emph{ease of misuse} for adversaries.
+The success of access controls hinges on verification mechanisms that are asymmetric: disproportionately harder for adversaries to satisfy than for legitimate users.
+This section evaluates the feasibility of our proposal under this core assumption.
 
-The success of the access control framework hinges on the design of its verification mechanisms.
-For the system to be effective, these mechanisms must be asymmetric: disproportionately harder to satisfy for adversaries than for legitimate users.
-This section evaluates the feasibility of our proposal under this core assumption, acknowledging three primary implementation challenges that could decrease the ease of use for legitimate users:
-(1)~some harmful knowledge may lack clean conceptual precursors, making it difficult to build narrow content categories;
-(2)~verification mechanisms may be overly restrictive, requiring credentials that are too difficult to obtain;
-and (3)~content classifiers will produce false positives, forcing legitimate users through unnecessary verification.
+\paragraph{Will Verification Create Excessive Friction?}
 
-To analyse the system's potential, we can use a thought experiment.
-Consider a baseline system constructed by taking the status quo but replacing outright refusals with conditional acceptances, given that the user completes some verification requirements.
-This construction is already a Pareto improvement over the status quo: the verification requirements can be set to be sufficiently stringent to deter most adversaries, and thus maintain the ease of misuse, while the ease of use is improved since at least \emph{some} legitimate users can now access previously blocked content that was previously blocked.
-From this starting point, model providers can adjust the system's parameters to move along the use-misuse frontier: content categories can be narrowed or widened, verification requirements can be made more or less stringent, classifier thresholds can be brought up or down, and system responses can be made more or less strict.
-Because of the assumed asymmetric nature of the verification mechanisms, a small decrease in ease of use for a legitimate user should correspond to a large decrease in ease of misuse for an adversary.
-This suggests model providers can move the starting point through small adjustments in the system's parameters until they find a configuration that achieves a comparable ease of use to status quo while significantly reducing ease of misuse.
+A key concern is that verification requirements will burden legitimate users, defeating the utility gains access controls promise to deliver.
+However, even pessimistic assumptions suggest this friction will be limited.
+Analysis of pathogen biology queries---a domain where verification might be widely required---shows that only 0.85\% of requests would face additional requirements even if \emph{all} such queries triggered verification (see \cref{appendix:estimating-biology-requests}).
+This demonstrates that specialized knowledge domains represent a small fraction of overall usage, making verification requirements practical for most users.
 
-For a practical example, consider access controls as applied to pathogen biology.
-Even under pessimistic assumptions where all pathogen-related queries require verification, only around 0.85\% of requests will suffer from increased friction (see \cref{appendix:estimating-biology-requests}).
-This impact on ease of use is comparable to existing systems; for instance, Constitutional Classifiers were designed for false positive rate increases of around 0.5\% \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
-Meanwhile, ease of misuse decreases significantly, as some adversaries would get deterred by the verification requirements.
+More fundamentally, access controls can be designed to guarantee users are never worse off than under current systems.
+By replacing outright refusals with conditional acceptances based on verification, the system creates a Pareto improvement: users can either accept the refusal (as they would today) or complete verification to gain access to previously blocked content.
+From this starting point, model providers can adjust system parameters---content categories, verification requirements, classifier thresholds, and response strictness---to optimize the trade-off between ease of use and ease of misuse.
 
-\paragraph{Incentives for Implementation}
+\paragraph{Will Classifier Errors Make the System Impractical?}
 
-The potential for a Pareto-dominant safety system provides strong incentives for adoption, in theory.
-However, the initial design costs are high.
-Nevertheless, the opportunity cost of \emph{not} implementing this system rises as model capabilities increase, since increasingly more and more advanced and risky knowledge will remain locked away under blanket restrictions (from the side of governments or self-imposed).
-Access controls offer model providers a pathway to safely unlock these capabilities for verified expert users, creating a competitive advantage.
-And because of the system's flexibility, model providers can choose where on the use-misuse frontier they want to be, and they can adjust the system's parameters on-the-fly according to real usage data or results from partial rollouts.
+Classification errors represent a central implementation challenge.
+False positives trigger unnecessary verification for legitimate users, consuming the system's ``friction budget'' and limiting how much additional safety can be achieved.
+False negatives allow harmful content to pass through undetected, directly undermining safety goals.
+However, providers can manage this tradeoff by adjusting classifier thresholds and verification requirements.
+More stringent thresholds reduce false negatives but increase false positives; less stringent verification requirements reduce friction from false positives but may let more harmful content through.
 
-\subsection{Open Problems: Equity and Privacy}
+Existing systems demonstrate that workable error rates are achievable.
+Constitutional Classifiers maintain false positive rates around 0.5\% for general queries and 5\% even in difficult safety-adjacent domains like chemistry \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
+Providers can design access control systems to operate effectively within these performance bounds, adjusting verification requirements and system responses to accommodate imperfect classification while still achieving meaningful safety improvements.
 
-Two central challenges in designing verification mechanisms are ensuring equity and protecting privacy.
-Relying on certifications common in developed countries risks excluding legitimate users in the rest of the world.
-In addition to being unjust, this also violates our core assumption that verification should be harder to obtain for adversaries than for legitimate users.
-A potential interim solution is a manual approval process for users who cannot obtain standard credentials because of structural reasons, but can provide alternative evidence of legitimate need and ability to handle high-risk knowledge.
-This would be feasible as long as the volume of such requests is low, which we expect it to be, since this will only affect the most specialized high-risk knowledge.
-Future work should focus on co-designing alternative, scalable verification pathways with regional partners.
+\paragraph{Will This Actually Stop Sophisticated Adversaries?}
 
-Similarly, linking real-world identities to model queries creates significant privacy risks.
-Policies for data handling must be transparent and robust.
-Technically, implementations should explore privacy-preserving approaches, such as using differential privacy in logging systems --- similar to Anthropic's Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld} --- to aggregate insights without exposing individual user data.
+Current safety systems struggle with decomposition attacks, where adversaries transform harmful requests into seemingly innocent technical questions.
+Access controls address this by refusing grey-zone requests by default, forcing adversaries to obtain legitimate credentials rather than rely on clever prompting.
+This shifts the attack surface from content manipulation to credential acquisition, where the asymmetric verification assumption provides security benefits.
+The system's effectiveness ultimately depends on whether verification mechanisms are genuinely harder for adversaries to satisfy than for legitimate users---a design challenge that varies across domains and credential types.
+
+\paragraph{Implementation Incentives}
+
+Verification systems introduce upfront engineering costs and risk customer drop-off, creating implementation barriers.
+However, several factors favour adoption.
+Providers already implement many safety measures voluntarily to avoid reputational damage; access controls could enable more precise risk management than current blanket restrictions.
+Regulatory precedents show platforms successfully implement credential checks when facing legal exposure: know-your-customer rules in financial services and age verification in online gambling demonstrate feasible deployment at scale.
+As model capabilities expand into sensitive domains, providers face increasing pressure---both regulatory and reputational---to implement sophisticated access controls rather than restrict capabilities entirely.
+This creates competitive advantages for providers who can safely serve credentialed experts while maintaining public trust.
+
+The timing and extent of adoption remain uncertain, depending on regulatory developments, industry coordination, and the balance between implementation costs and competitive pressures.
+
+\subsection{Open Problems}
+
+Relying solely on certifications common in developed countries could violate the asymmetric verification assumption by making credentials harder for legitimate researchers in developing countries than for well-resourced adversaries.
+Interim solutions include manual approval processes for users who can provide alternative evidence of legitimate need, though this approach only scales for specialized high-risk knowledge with low request volumes.
+Long-term solutions require co-designing verification pathways with regional authorities and international bodies to ensure global accessibility without compromising security.
+
+Privacy implications stem from linking real-world identities to model queries, creating surveillance risks and potential chilling effects on legitimate research.
+Policy frameworks must balance verification requirements against legitimate privacy expectations through transparent data handling practices and robust oversight mechanisms.
+Technical approaches like differential privacy for aggregate usage statistics---as demonstrated by Anthropic's Clio system \cite{tamkin2024clioprivacypreservinginsightsrealworld}---can provide insights for safety monitoring while protecting individual user privacy.
+Clear data retention limits and purpose restrictions are essential to prevent mission creep in surveillance capabilities.
 
 \section{Conclusion}
 
