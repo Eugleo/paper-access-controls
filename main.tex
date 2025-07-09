@@ -132,6 +132,13 @@
 % This constraint forces suboptimal decisions: systems either refuse both requests (sacrificing utility) or allow both (sacrificing safety).
 % Any system that treats different user types identically for identical requests cannot reach the optimal safety-utility balance.
 
+% To address this systematically, we split the dual-use dilemma into two sub-problems.
+% First, legitimate users are restricted from accessing sensitive knowledge (over-restriction).
+% Second, adversaries can exploit the model for harmful purposes (under-restriction).
+% By analysing each side separately, we can evaluate the safety-utility trade-off more precisely.
+
+% Over-restriction happens when legitimate users are not able to access high-risk knowledge because of blanket restrictions.
+
 User requests --- and with them, model outputs --- exist on a
 spectrum from clearly benign to clearly harmful, with most falling in
 the grey zone in the middle (example in \cref{figure:main}). In the
@@ -237,7 +244,7 @@ Nevertheless, these methods could be modified to incorporate external contextual
 Current safety systems face the dual-use dilemma because they lack trustworthy information about who is making a request and why.
 In this section, we describe an access control system that addresses this problem by verifying user credentials before granting access to sensitive knowledge.
 
-\subsection{Overview of the Access Control Framework}
+\subsection{Overview of the Access Control Framework} \label{section:access-control-overview}
 
 We propose a defensive system where grey-zone requests are refused by default, but users can gain access to specific categories of knowledge if they undergo verification.
 
@@ -358,83 +365,49 @@ However, the system turns on enhanced logging and conducts additional post-proce
 \section{Feasibility and Limitations}
 \label{section:feasibility-and-limitations}
 
-\cref{section:current-methods} and \cref{section:access-controls} established that current safety methods cannot solve the dual-use dilemma, while access controls offer a viable theoretical solution.
-However, \cref{section:access-controls} also identified several technical challenges that could affect the practicality of the system.
-In this section, we show that all of these connect to a central question: will the added user friction undermine the system's value?
+\cref{section:access-controls} identified several technical challenges in the access control system: (1)~some harmful knowledge might decompose into concepts that are all indispensable for harmless applications; (2)~some verifications may be too difficult to obtain; and (3)~content classifiers might produce false positives.
+Although some of these are engineering challenges with partial solutions, we concede that none will be perfectly solvable.
+These challenges will increase user friction, imposing a cost on the utility of the system.
+Prompted by this, we separately analyse the safety-utility trade-off of the proposed system in the two sub-problems caused by the dual-use dilemma.
 
-\paragraph{Technical Problems Lead to Friction}
+\subsection{Access Controls Help Against Over-Restrictions}
+\label{section:over-restriction}
 
-We identified the following technical challenges with the various components of the system:
+In the cases of over-restriction, there is no trade-off.
+Even after taking the technological challenges into account, using access controls is a strict improvement to status quo.
 
-(1)~some harmful knowledge might decompose only into concepts that are all widespread and highly useful for many harmless things;
-(2)~verification mechanisms may be overly restrictive, requiring credentials that are too difficult to obtain;
-and (3)~content classifiers will produce false positives, forcing legitimate users through unnecessary verification.
+Model providers can only require verification for requests that would otherwise be refused.
+This is a clear improvement in utility: legitimate users can either accept refusal (current experience) or complete verification to gain access (new option).
+Safety need not be hurt: model providers can design the verification requirements to be strict enough to deter the overwhelming majority of adversaries.
 
-As for the first problem: this varies domain by domain.
-In chemistry, the Chemical Weapons Convention already identifies not just controlled compounds but also their precursors and specific equipment, demonstrating successful decomposition into specialized components.
-Similarly, many processes in biology depend on tacit knowledge that is specific to the studied organism, equipment, and desired use-case.
-However, in cybersecurity, we concede that it might be difficult to identify neat self-contained concepts that, while being dual-use, are more often than not useful mainly for hamrful things.
-All in all, if concept categories are too broad or if all categories are often used by many users, there will be a lot of absolute amount of friction experienced by the median user.
+\subsection{Access Controls Sometimes Help Against Under-Restrictions}
+\label{section:under-restriction}
 
-The second problem.
-If verifications are overly strict, or even impossible to obtain for structural reasons (e.g. because they rely on certification system that are not available in developing countries), manual review processes and appeals processes could remove some of the problems, before new verification systems are developed.
-However, this still leads to friction: if the verification mechanisms are too difficult to obtain, users will experience friction.
+Using access controls against under-restrictions means making some accessible knowledge inaccessible unless the user is verified.
+Here, even a perfect system induces some cost to utility, since legitimate users would have to become verified, and additional drops in utility are caused by the aforementioned technical challenges.
 
-Finally, the third problem.
-Classification errors are inevitable, but existing systems like Constitutional Classifiers achieve acceptable false positive rates around 5\% even in difficult safety-adjacent domains, demonstrating that meaningful precision is achievable.
-Nevertheless, any amount of error leads to friction: if the content classifiers produce false positives, legitimate queries will be classified as potentially harmful, and users will have to undergo verification and thus, again, experience friction.
+Model providers can measure the impacts of the system on utility before deployment, for example by conducting partial rollouts.
+They can then walk the safety-utility frontier by tuning the parameters of the system: making verification more or less stringent, raising or lowering classifier thresholds, and so on.
+The optimal point on the frontier will depend on the domain-specific technological constraints, liability requirements, regulatory pressures, and business priorities.
 
-All in all, although the technical challegenges haev some engineering or design-based solutions, they will definitely be present in the system to some extent, which will increase user friction.
-Will this added friction outweigh the benefits of the system?
-To address this systematically, we split the dual-use dilemma --- the problem the system is trying to solve --- into two sub-problems.
-First, even legitimate users are restricted from accessing some sensitive knowledge (over-restriction).
-Second, adversaries can find exploits to use the model for harmful purposes (under-restriction).
+In many domains, the default position might be the status quo which offers maximum utility.
+As technology improves, regulatory requirements change, or other conditions evolve, providers can expand the access controls to new domains, or tweak the parameters for existing ones.
+Already now there are domains where some trade-off for safety is favourable.
+Pathogen biology is one such example.
+Consider an access control system so badly calibrated that all pathogen-related queries would require verification, as a conservative example.
+First, we note that this system would deter at least some adversaries from performing decomposition attacks, improving on the safety of the status quo.
+At the same time, the impact on utility is minimal: only 0.85\% of queries would experience added friction (estimated based on the Anthropic Economic Index, see \cref{appendix:estimating-biology-requests} for details).
+This would likely be acceptable to model providers; for context, existing safety systems like Constitutional Classifiers incorrectly refuse around 0.5\% queries \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
 
-\paragraph{Focus: The Impact on Over-Restriction}
+\subsection{The Incentives for Implementation Grow with Model Scale}
 
-For the first side of the dual-use dilemma --- legitimate users being denied access to sensitive knowledge --- access controls provide a clear improvement.
-To see why, consider that the model providers can set up the system to only require verification for high-risk categories, ones that would otherwise face blanket restrictions (be it due to regulations or model providers' own policies).
-This is possible e.g. by detecting when the current system would refuse a request, and only then triggering the verification cascade, and if the user is verified, steering the model to instead generate an answer.
-The verification mechanisms could be set so strict that an overwhelming majority of adversaries would be deterred by them, keeping the safety of the system comparable to status quo.
-Additionally, legitimate users are never worse off than current systems: they can either accept refusal (current experience) or complete verification to gain access (new option).
-The technical problems mentioned above do limit these improvements (e.g. less users benefit from this than would theoretically be possible because of overly complex verification mechanisms), but the improvement is always non-zero: it is better when \emph{some} legitimate users get access to high-risk knowledge than when \emph{none} do.
-In other words, the access control system is a Pareto improvement over the current system.
-In the most pessimistic scenario, model providers could only implement the access control system for these use-cases, not increasing the safety of their systems, but increasing the utility.
-The amount of utility they would unlock by doing this rises with the rising capabilities of new models: the new models will know more and more potentially risky knowledge --- but also potentially useful, for advanced, high-value professional users --- which nobody would ever get to see under the current system.
+In any case, model providers could implement the access control system only to reduce over-restrictions.
+The business case for this approach strengthens as model capabilities advance.
+New models will possess increasingly sophisticated knowledge across dual-use domains --- valuable for advanced laboratories, research institutions, and other high-value professional users ---that would remain completely inaccessible under current safety systems.
 
-\paragraph{Focus: The Impact on Under-Restriction}
-
-The second side of the dual-use dilemma --- preventing adversarial access to sensitive knowledge --- presents more complex trade-offs.
-Grey-zone requests from legitimate users will require verification, creating friction that must be weighed against safety benefits.
-Model providers must choose their position on the use-misuse frontier, balancing user convenience against security concerns.
-However, the system's granularity and flexibility enable providers to tune multiple parameters --- content categories, verification requirements, classifier thresholds, and system responses --- to find acceptable trade-offs rather than being forced into binary choices.
-
-The good news is that in many domains, the friction costs are manageable while safety benefits are substantial.
-Pathogen biology provides concrete evidence: even under the pessimistic assumption that all pathogen-related queries require verification, only 0.85\% of users face additional friction [cite appendix, mention anthropic economic index].
-If the verification mechanisms are set correctly (they deter more adversaries than legitimate users), we would expect this system to be much safer than the current system.
-To put the friction number for legitimate users in context: existing systems like Constitutional Classifiers have false positive rates around 0.5\% and are deemed acceptable for production use.
-In other words, we are trading off an acceptable amount of friction for a fraction of users against a much safer world for everyone.
-In reality, the amount of friction will be much lower, as classifiers will achieve better precision than this worst-case scenario assumes, and also, biological knowledge decomposes into more specific components (techniques for bacterial membrane protein modification, viral cultivation protocols, protocols to use specialized laboratory equipment) that can be targeted precisely rather than requiring broad categorical restrictions.
-So, in reality, the result would be friction reduced by orders of magnitude compared to worst-case estimates while maintaining meaningful safety improvements.
-We believe the situation in chemistry will be similar or even better.
-
-Other domains may present greater challenges, with cybersecurity representing a potential example where decomposition into clean content categories proves difficult.
-However, providers are not required to implement access controls uniformly across all domains.
-They can start with domains where decomposition works well, gain experience with system operation, and expand gradually.
-For challenging domains, providers can choose to implement only high-risk restrictions (capturing the clear Pareto improvement) while leaving moderate-risk knowledge unrestricted.
-Alternatively, if security concerns are severe enough, providers may accept higher friction costs in exchange for meaningful safety improvements, but this remains a voluntary choice rather than a system requirement.
-
-The system's flexibility enables a gradual implementation strategy that reduces risks while building evidence.
-Providers can begin with domains that decompose cleanly and have established verification mechanisms, conduct partial rollouts to measure friction impacts, and adjust parameters based on empirical data.
-Success in initial domains can inform expansion to more challenging areas, with the option to maintain different policies across domains based on their specific characteristics.
-This approach allows providers to walk the use-misuse frontier systematically, optimizing for their particular risk tolerance and user base rather than accepting one-size-fits-all solutions.
-As model capabilities advance and dual-use concerns intensify, the value of having such a flexible system in place increases, making early investment in access controls increasingly attractive.
-
-One thing that makes the deal sweeter: While verification adds some friction for legitimate users, it disproportionately increases barriers for potential misusers, making the trade-off more attractive for providers than simple friction metrics suggest.
-This means the model providers might be willing to trade off a small amount of friction for legitimate users to gain a comparaively much safer system.
-Well-designed verification mechanisms create asymmetric costs that favor the access control approach.
-Legitimate researchers typically have institutional affiliations, professional credentials, and established reputations that make verification straightforward.
-Adversaries seeking to misuse sensitive knowledge face higher barriers to obtaining credible credentials.
+In some domains, the technological, regulatory, and business constraints might make the conditions favourable for the access control system to also be used to address under-restrictions and improve safety.
+As we showed above, some domains like this already exist, and more could be opened e.g. with governmental involvement.
+Also here, the value proposition of the access control system strengthens as model capabilities advance, because denying adversaries from using decomposition attacks to get access to high-risk advanced knowledge becomes more and more important with the rising advanceness of said knowledge.
 
 \paragraph{Open Problems}
 
@@ -454,8 +427,6 @@ Long-term solutions require co-designing verification pathways with regional aut
 % So, take my ideas below and structure them. Specifically, some of the ideas talk about what we should have in the introduction. Some of the ideas are like, they talk about the setup. Some of the ideas talk about one part of the problem and some other ideas about the other part. And you should structure these parts separately and order the information in the order that we want to expose it. And you should make sure not to forget about any particular important argument. So first what you should do is you should go part by part and just list in whichever order all the key core pieces of information and important arguments and good ideas that I had below. And then you should make a second pass and reorder the information to make the flow nicer. So what you will do is you will basically have two sections in your answer.
 % And one more thing I wanted to say is that I think there is probably some nice way to think about us splitting the dual use problem to basically the two sub-problems and then solving the problems separately. I think this is a good framework, so we should explicitly do that here, and I will probably go back to the paper and change it there as well, just to make the exposition a bit clearer there as well.
 % Yes, I think you should restructure section 4. But before you do that, we should think harder about how to split the problem. So we mentioned the technical problems and we say that all of them connect to user friction in some way. I think when we are mentioning the problems, we should have one line refutations for the problems as well, and then also say that they connect to friction. So it should be something like, what if the classifiers are very imprecise? And then we say something like, well, we believe that the classifiers will be meaningfully precise because existing classifiers, you know, entropic, et cetera, they have like like 5% false positive rate or something. But sure, like, you know, it connects to friction, there is going to be some friction added. And we do this for these things. But we should definitely mention like all of the technical problems that we mentioned. And we say all of them connect to friction. And now to analyze the friction and whether it'd be worth it, we need to sort of separate the problem and analyze the two sides of the dual use dilemma separately. And one side of the dual use dilemma is, you know, you are rejecting things that you should not be rejecting because they are legitimate. And that's the high risk category, right? And then we make the argument. And then we say, okay, Now let analyze the other side of the dual use dilemma There are some things you should be rejecting but you aren And by the way for the first side of the dual use dilemma we can say something like these things, you know, this is like a clear win, and it is possible to set up the access control system in a way that only does this and doesn't affect the low risk things at all. Because your access, and that's basically our conditional acceptance framework. So that belongs in the section about the first half of the dual use dilemma. And then the second half of the dual use dilemma is more complicated because that's about, you know, some of the things that you are rejecting, that you are not rejecting, you should be rejecting because they are illegitimate. And there we need to make a complicated argument of you know, we have a lot of these systems, they can have different faults. So we need to make, we need to decide like, or the providers need to decide where on the use-misuse curve misuse curve they want to be. And then they will be able to tweak the system so that they are there. And it's always about increasing user friction somewhat. Because the dual use things, the gray zone requests, they will actually be subject to verification. So legitimate users will have to go through verification. And we basically need to think about, OK, how much of this can be afforded? And how much safety are we getting back And in here we should say that in some domains this is going to be an easy trade to make because domains are small enough or specialized enough or they decompose nicely into things where some things can actually be restricted. And our system is very flexible and granular, so it can actually be caught by this. And in these domains, and then we have the example of the biology, and we say, well, in these domains, the trade-off is simple because even under conservative estimates, we actually increase safety, right? And we keep friction comparable to like things that we see that model developers or model providers are okay with accepting, right? And we use our biology example here. And then we say, well, in other domains, This is going to be more complicated because, for example, it's not clear that, I don't know, cybersecurity decomposes in this way. And maybe the conservative estimate would be, you know, very different. Oh, and by the way, we shouldn't mention, you know, we mentioned the biology and like banning all pathogens, etc. and share like that's fine. But then we should actually say, well, this is unrealistic, not only because the classifiers won't be so bad, but also because the content actually decomposes better. So we can, you know, you know, we can sort of pick out, I don't know, things about viral proteins on membranes or something viruses don actually have membranes but bacterial proteins on membranes And we can target that. And so not only is the content classifier going to be better, but also the content category itself is going to be much smaller, and so the friction is going to be orders of magnitude smaller than what we outlined there. So we should say that. And then we say, OK, but maybe this is impossible for some domains. For example, it's unclear whether this is possible for cybersecurity. And in these domains, model developers can opt not to use the system at all or only use it for the high-risk categories to get the clear win, right? But maybe they think that the risks are so big that they swallow the bitter pill and basically, sacrifice some of the user friction to get a lot of, to sort of get a lot of safety back. And the one thing that's like, but it's not clear that they do it, but also they don't have to do it. They don't have to use the system for everything. Maybe there are other ways to like solve problems in these domains. And you know at least like if if governments sort of like push them to do that, they will have a system in place that they can use to very granularly try to address the domain, even if they're not addressing it from day one. We should also say that we think that actually domains will decompose in some way, maybe not perfectly or as nicely everywhere, but we hypothesize that this is going to be possible. But we don't have proof and you know they don't have to do it etc. And one more thing that's speaking, you know, in favor of maybe doing some concessions on user friction is that, you know, ideally if you are verification mechanisms, you know, you're choosing some verification mechanisms. And, you know, there's a whole set of different things you could be using from different industries. You can take inspiration, et cetera. And, you know, if you choose them well, so the selection is like wide. And if you choose them well, the selection mechanism, sorry, the verification mechanism will be harder for an adversary to go through than for a legitimate user. So actually, when you add friction to the system, you're adding disproportionately more friction to the adversary. And so, you know, this doesn't hold always, but it's a useful intuition to have that shows you that, you know, sometimes it sort of makes the deal sweeter for the model providers, where, you know, if it was like one to one, you know, like they, because we're focusing now on like the harms and we're in like the sort of bad domains where it's like really difficult to solve these problems. And we like have to add user friction in order to get some safety. Well, the one last thing that remains is that the safety actually, we sort of get more safety for each piece of user friction. Right. The problem is that actually, you know, this shouldn't be only because there are like much more, much many more normal users than adversaries. So actually, you know, if we add, so in relative terms, it holds. We add more friction to adversaries than to normal users, but maybe in absolute terms, it's not so clear. But still, it's something we should be thinking about. And, you know, what brings this together is, you know, in domains where this is difficult, model developers don't have to do anything. But there are domains where this is going to be easy, easier. You know, in biology, we have the conservative estimate. And in chemistry, we can call out the chemical weapons convention that basically specifies, you know, I think we mentioned it already somewhere, that already specifies some like precursors and stuff. So there's probably something that also like decomposes nicely. And, you know, we can build classifiers that sort of detect specialized equipment and stuff. So, you know, there are some arguments for some domains that are weaker for other domains, but that just, you know, developers can just implement it for some domains at first. And then they can like think about and test it. And, you know, they can walk the frontier so they can fine tune it to their needs. All of this stuff.
-
-\paragraph{Open Problems}
 
 \section{Conclusion}
 
