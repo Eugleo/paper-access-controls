@@ -115,11 +115,11 @@
 
 \begin{abstract}
   AI safety systems face the dual-use dilemma: it can be unclear whether to refuse certain requests, since they could be either harmless or harmful depending on who made them and why.
-  The only way to know is to look at their real-world context, but current safety systems do not do that.
-  Instead, they make arbitrary decisions that hurt both the total utility and total safety: they refuse some legitimate queries, and fail to refuse some harmful ones.
+  The only way to know is to look at their real-world context, but current safety systems do not capture this information.
+  Instead, they make arbitrary decisions that end up hurting both utility and safety: they sometimes refuse legitimate queries and sometimes fail to refuse harmful ones.
   To address this, we propose a conceptual framework based on access controls in which only verified users can access dual-use outputs.
-  We describe the framework's components, show it is feasible to implement, and explain how it addresses both over-refusals and under-refusals.
-  While only a high-level proposal, our work makes the first step toward enabling granular AI governance that benefits both sides of the utility-safety Pareto frontier.
+  We describe the framework's components, analyse its feasibility, and explain how it addresses both over-refusals and under-refusals.
+  While only a high-level proposal, our work makes the first step toward enabling granular AI governance that benefits both sides of the utility-safety Pareto frontier: users would gain access to more capabilities without sacrificing safety, and regulators would achieve better oversight without stifling innovation.
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
@@ -148,21 +148,23 @@ In the grey zone, the harmfulness of a request depends not on its content, but o
   \vskip -0.2in
 \end{figure}
 
-Safety systems that rely solely on content immediately face the \emph{dual-use dilemma}: when confronted with a grey-zone request, should they refuse it or not?
+Safety systems that rely solely on content immediately face the \emph{dual-use dilemma}.
+When confronted with a grey-zone request, should they refuse it or not?
 This forces arbitrary decisions that reduce both utility and safety: some legitimate queries are refused (over-refusals) while some harmful ones are not (under-refusals).
-Some safety systems attempt to address this by inferring real-world context from chat history or user-provided rationales.
-However, these context sources are user-supplied and easily fabricated by adversaries.
+Some safety systems attempt to address this by inferring the context of the request from its contents or the chat history.
+However, this context is fully user-supplied and can be easily fabricated by adversaries.
 
 In this paper, we argue that informative, hard-to-fabricate real-world context can be obtained through user-level verifications such as ID checks, institutional affiliations, or government-issued certifications.
 We address the dual-use dilemma with two contributions.
-\textbf{First}, we show how this verified context can be used jointly with content analysis in a safety framework based on access controls \cite{butler1974}.
+\textbf{As our primary contribution}, we show how this verified context can be used jointly with content analysis in a safety framework based on access controls \cite{butler1974}.
 In the framework, model outputs are classified into content categories, and the system verifies whether the user has the required credentials to access the detected category.
 We also describe how the framework addresses both issues caused by the dual-use dilemma: over-refusals and under-refusals.
-\textbf{Second}, we propose a novel theoretical approach to content category classification based on recent methods for robust unlearning, UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
+\textbf{Additionally}, we propose a novel theoretical approach to content category classification based on recent methods for robust unlearning, UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
 This approach avoids the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
 
 Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
-It enables a more nuanced regulatory approach, with policies that differentiate between user types and contexts rather than forcing blanket restrictions on model capabilities.
+Future implementations of such frameworks could enable more nuanced regulatory approaches, with policies that differentiate between user types and contexts rather than forcing blanket restrictions on model capabilities.
+This granular approach would benefit both sides of the utility-safety tradeoff: users would gain access to more capabilities without sacrificing safety, and regulators would achieve better oversight without stifling innovation.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
@@ -170,6 +172,7 @@ It enables a more nuanced regulatory approach, with policies that differentiate 
 We evaluate three approaches from the AI safety literature to see how sensitive they are to contextual information, and whether their sources of real-world context are trustworthy --- that is, hard to manipulate by an adversary.
 
 % TODO Point to atual numbers of how big of a problem this is (recent virology paper)
+% TODO Keeping everything else fixed and improving jailbreaking resilience or resilience to prompt injections won't help us, because if we reject the question, SOMETIMES that will be right, but SOMETIMES that will be wrong. We NEED the context.
 
 First, to illustrate the need for context, consider decomposition
 attacks \cite{glukhov2023llmcensorshipmachinelearning,

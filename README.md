@@ -9,7 +9,7 @@
 
 # Intro
 
-- [ ] Talk more about government and industry incentives: both want more granularity to enable both more capabilities and more safety at the same time!
+- [X] Talk more about government and industry incentives: both want more granularity to enable both more capabilities and more safety at the same time!
 - [X] Make it clear what a grey zone question is: a question that could be both good or bad, depending on who is asking and why. 
     - Keeping everything else fixed and improving jailbreaking resilience or resilience to prompt injections won't help us, because if we reject the question, SOMETIMES that will be right, but SOMETIMES that will be wrong. We NEED the context.
     - Decomposition attacks are only there to illustrate the severity of the problem. If grey-zone questions are always let through, attackers will exploit this to decompose their black-zone questions to multiple grey-zone ones.
