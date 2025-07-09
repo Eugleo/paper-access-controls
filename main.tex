@@ -119,7 +119,7 @@
   Instead, they make arbitrary decisions that end up hurting both utility and safety: they sometimes refuse legitimate queries and sometimes fail to refuse harmful ones.
   To address this, we propose a conceptual framework based on access controls in which only verified users can access dual-use outputs.
   We describe the framework's components, analyse its feasibility, and explain how it addresses both over-refusals and under-refusals.
-  While only a high-level proposal, our work makes the first step toward enabling granular AI governance that benefits both sides of the utility-safety Pareto frontier: users would gain access to more capabilities without sacrificing safety, and regulators would achieve better oversight without stifling innovation.
+  While only a high-level proposal, our work makes the first step toward enabling granular AI governance that transforms traditional utility-safety tradeoff: users would gain access to more capabilities without sacrificing safety, and regulators would achieve better oversight without stifling innovation.
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
@@ -163,8 +163,8 @@ We also describe how the framework addresses both issues caused by the dual-use 
 This approach avoids the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
 
 Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
-Future implementations of such frameworks could enable more nuanced regulatory approaches, with policies that differentiate between user types and contexts rather than forcing blanket restrictions on model capabilities.
-This granular approach would benefit both sides of the utility-safety tradeoff: users would gain access to more capabilities without sacrificing safety, and regulators would achieve better oversight without stifling innovation.
+Future implementations of such frameworks could enable more nuanced regulatory approaches, with policies that differentiate between types of users and their contexts rather than forcing blanket restrictions on model capabilities.
+This granular approach could enable new regulatory possibilities while directly benefiting users, who would gain access to more capabilities without sacrificing safety.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
@@ -344,22 +344,20 @@ However, the system turns on enhanced logging and conducts additional post-proce
 
 \cref{section:access-controls} identified several technical challenges in the access control system: (1)~some harmful knowledge might decompose into concepts that are all indispensable for harmless applications; (2)~some verifications may be too difficult to obtain; and (3)~content classifiers might produce false positives.
 These challenges will increase user friction, imposing a cost on the utility of the system.
-Prompted by this, we separately analyse the safety-utility trade-off of the proposed system in the two sub-problems caused by the dual-use dilemma.
+Prompted by this, we separately analyse the safety-utility tradeoff of the proposed system in the two sub-problems caused by the dual-use dilemma.
 
-\subsection{Access Controls Help Against Over-Restrictions}
-\label{section:over-restriction}
+\subsection{Access Controls Help Against Over-Refusals}
 
-In the cases of over-restriction, there is no trade-off.
+In the cases of over-refusals, there is no tradeoff.
 Even after taking the technological challenges into account, using access controls is a strict improvement to status quo.
 
 Model providers can only require verification for requests that would otherwise be refused.
 This is a clear improvement in utility: legitimate users can either accept refusal (current experience) or complete verification to gain access (new option).
 Safety need not be hurt: model providers can design the verification requirements to be strict enough to deter the overwhelming majority of adversaries.
 
-\subsection{Domain-specific Approaches to Under-Restrictions}
-\label{section:under-restriction}
+\subsection{Domain-specific Approaches to Under-Refusals}
 
-Using access controls against under-restrictions means making some accessible knowledge inaccessible unless the user is verified.
+Using access controls against under-refusals means making some accessible knowledge inaccessible unless the user is verified.
 Thus, even a perfect system takes a toll on utility, since legitimate users would have to become verified, and additional drops in utility are caused by the aforementioned technical challenges.
 
 Model providers can measure the impacts of the system on utility before deployment, for example by conducting partial rollouts.
@@ -367,7 +365,7 @@ They can then walk the safety-utility frontier by tuning the parameters of the s
 The optimal point on the frontier will depend on (and will change over time with) the domain-specific technological constraints, liability requirements, regulatory pressures, and business priorities.
 
 In many domains, the default position might be the status quo which offers maximum utility.
-Pathogen biology is one example of a domain where the trade-off for safety is already favourable.
+Pathogen biology is one example of a domain where the tradeoff for safety is already favourable.
 Consider an access control system so badly calibrated that all pathogen-related queries would require verification, as a conservative example.
 First, we note that this system would deter at least some adversaries from performing decomposition attacks, improving on the safety of the status quo.
 At the same time, the impact on utility is minimal: only 0.85\% of queries would experience added friction (estimated based on the Anthropic Economic Index, see \cref{appendix:estimating-biology-requests} for details).
@@ -376,7 +374,7 @@ This would likely be acceptable to model providers; for context, existing safety
 \subsection{The Incentives for Implementation Grow with Model Scale}
 
 As models gain more sophisticated knowledge across dual-use domains, both its value (for specialized professional users) and the misuse risks it poses increase.
-Thus, controlling both under-restrictions and over-restrictions will be more and more important, and the business implementing access controls strengthens.
+Thus, controlling both under-refusals and over-refusals will be more and more important, and the business implementing access controls strengthens.
 
 \subsection{Limitations and Open Questions}
 
