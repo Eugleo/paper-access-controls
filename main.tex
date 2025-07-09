@@ -164,26 +164,21 @@ This approach avoids the capability gap between a model and its monitors that ca
 
 Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by a recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
 Current regulatory approaches choose between blanket restrictions of capabilities that stifle innovation and blanket permissions that create safety risks.
-Future implementations of such frameworks could instead enable policies that differentiate between types of users and their contexts.
-This granular approach would also directly benefit users, who would gain access to more capabilities without sacrificing safety.
+Future implementations of such frameworks could instead enable granular policies that differentiate between types of users and their contexts.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
 
-We evaluate three approaches from the AI safety literature to see how sensitive they are to contextual information, and whether their sources of real-world context are trustworthy --- that is, hard to manipulate by an adversary.
+The dual-use dilemma causes two issues: over-refusals and under-refusals.
+Over-refusals reduce model utility for legitimate users, which is clearly undesirable.
+Under-refusals are equally problematic because they enable decomposition attacks \cite{glukhov2023llmcensorshipmachinelearning, glukhov2024breachthousandleaksunsafe}.
+These attacks transform clearly harmful queries, such as ``How to modify a virus to avoid immune detection?'', into series of mundane grey zone questions, such as ``What features of viral surface proteins are recognized by human antibodies?'' from \cref{figure:main}.
+Safety systems would refuse the harmful query but do not refuse the grey zone questions since they are not individually harmful.
+Through these attacks, adversaries exploit under-refusals to decrease system safety.
 
-% TODO Point to atual numbers of how big of a problem this is (recent virology paper)
-% TODO Keeping everything else fixed and improving jailbreaking resilience or resilience to prompt injections won't help us, because if we reject the question, SOMETIMES that will be right, but SOMETIMES that will be wrong. We NEED the context.
-
-First, to illustrate the need for context, consider decomposition
-attacks \cite{glukhov2023llmcensorshipmachinelearning,
-glukhov2024breachthousandleaksunsafe}: transforming a clearly harmful
-query, such as ``How to modify a virus to avoid immune detection?'',
-into a series of mundane technical questions, like the ``What
-features of viral surface proteins are recognized by human
-antibodies?'' from \cref{figure:main}. Here, the attacker exploits
-the dual-use dilemma, and the fact that model providers cannot refuse
-grey zone requests to preserve model utility.
+Since whether a grey zone request should be refused depends on who made it and why, preventing both over-refusals and under-refusals requires access to real-world context.
+This means that the traditional focus on resilience against jailbreak and prompt injections is orthogonal to this problem.
+Instead, we evaluate three approaches from the AI safety literature to see how sensitive they are to contextual information, and whether their sources of real-world context are trustworthy --- that is, hard to manipulate by an adversary.
 
 \subsection{Unlearning: Non-Contextual Removal of Concepts}
 
@@ -194,9 +189,8 @@ eliminate the model's ability to generate harmful content while
 preserving other capabilities.
 
 Unlearning faces significant technical challenges even for preventing behaviours that are clearly harmful.
-As noted by \citet{cooper2024machineunlearningdoesntthink} and \citet{barez2025openproblemsmachineunlearning}, capabilities are hard to define, hard to remove without side effects, and it is hard to trace them back to specific data points.
-Many unlearning approaches mask rather than truly remove the targeted knowledge \cite{deeb2025unlearningmethodsremoveinformation}.
-Moreover, even nascent robust unlearning methods \cite{cloud2024gradientroutingmaskinggradients,lee2025distillationrobustifiesunlearning} are not contextual, and thus don't address the dual-use dilemma without additional assumptions.
+As noted by \citet{cooper2024machineunlearningdoesntthink} and \citet{barez2025openproblemsmachineunlearning}, capabilities are hard to define, hard to remove without side effects, and hard to trace back to specific data points.
+Furthermore, many unlearning approaches mask rather than truly remove the targeted knowledge \cite{deeb2025unlearningmethodsremoveinformation}.
 
 \subsection{Safety Training: The Model Reacts to Context}
 
@@ -206,15 +200,15 @@ This category includes safety pre-training \cite{maini2025safetypretraininggener
 
 Unlike unlearning, these methods are contextual.
 They don't remove capabilities entirely but train the model to selectively deploy them based on, among other things, the perceived legitimacy and harmlessness of the request.
-However, these qualities are entirely inferred from content supplied by the user, such as the request content, the chat history, or the model's memories about past conversations.
-It should be no surprise, then, that models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to in-chat context, e.g. through multi-round escalation \cite{russinovich2025greatwritearticlethat}.
-Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey zone requests, and thus cannot robustly address the dual-use dilemma.
+However, these qualities are entirely inferred from content supplied by the user, such as the request content or the chat history.
+It should be no surprise, then, that models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to in-chat context through multi-round escalation \cite{russinovich2025greatwritearticlethat}.
+Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey zone requests.
 
 \subsection{Post-Processing: External Systems React to Context} \label{section:post-processing}
 
-Post-processing methods are systems that classify user inputs and model outputs for the purposes of steering the underlying model, and monitoring and filtering its outputs.
+Post-processing methods are systems that classify user inputs and model outputs for the purposes of steering the underlying model, or monitoring and filtering its outputs.
 Sometimes, these methods are used for usage monitoring, as is the case with Anthropic's Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld, handa2025economictasksperformedai}, other times, they are used for safety, as with Llama Guard \cite{inan2023llamaguardllmbasedinputoutput} and Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
-However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and is thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
+However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
 Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:content-classification}.
 
 \section{Access Controls as a Solution}
@@ -242,8 +236,6 @@ Decomposition attacks will become much harder because the system refuses grey-zo
 Simultaneously, verified users will gain access to specialized knowledge that would otherwise face blanket restrictions under current approaches.
 
 The main concern is increased user friction, but we argue in \cref{section:feasibility-and-limitations} that this will be minimal because most users will never make grey-zone requests.
-
-% TODO Maybe make a figure that describes the 4 parts and make it be figure 1.
 
 \subsection{Content Categories} \label{section:content-categories}
 
@@ -321,11 +313,10 @@ Second, it could provide strong robustness: if an attacker prevents the activati
 Third, since the model is trained to activate the category-specific experts when they are needed, it should learn to recognize the content categories.
 This stands in contrast to ex-post probing methods, which do not offer such guarantees.
 While this method remains empirically unvalidated for our use case, the properties above make it worth investigating.
-% TODO: Add a figure that illustrates the approach
 
 \paragraph{Post-Processing}
 
-Post-processing methods such as constitutional classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} offer a proven approach to content classification.
+Post-processing methods such as Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} offer a proven approach to content classification.
 They operate independently of the model, allowing for rapid deployment and iteration, and they could be adapted to detect content categories and trigger checks of user verifications.
 However, for latency reasons, there is sometimes a capability gap between the model and the post-processing system, which the adversaries can exploit to evade detection \cite{jin2024jailbreakinglargelanguagemodels, kumar2025freelunchguardrails}.
 
@@ -374,7 +365,8 @@ This would likely be acceptable to model providers; for context, existing safety
 
 \subsection{The Incentives for Implementation Grow with Model Scale}
 
-As models gain more sophisticated knowledge across dual-use domains, both its value (for specialized professional users) and the misuse risks it poses increase.
+Frontier models already outperform 94\% of expert virologists on a recent benchmark \cite{gotting2025virologycapabilitiestestvct}.
+As models gain even more sophisticated knowledge across dual-use domains, the value of the knowledge (for specialized professional users) and the misuse risks it poses increase.
 Thus, controlling both under-refusals and over-refusals will be more and more important, and the business implementing access controls strengthens.
 
 \subsection{Limitations and Open Questions}
@@ -389,11 +381,11 @@ An interim solutions could be having a manual approval processes for users who c
 
 \section{Conclusion}
 
-Current safety systems face a dual-use dilemma: the same request can be harmless or harmful depending on who made it and why.
-Access controls solve this by incorporating user verification into safety decisions, moving beyond non-contextual analysis.
-This approach increases utility by reducing over-refusals, and also improves safety in applicable domains by helping prevent decomposition attacks.
-We also proposed a content classification approach that promises high efficiency and robustness to attacks, which future work should validate empirically.
-The access control framework becomes increasingly valuable as models gain sophisticated dual-use knowledge, offering a path toward nuanced AI governance that benefits both sides of the utility-safety Pareto frontier.
+Current safety systems face a dual-use dilemma when encountering grey zone requests: should they refuse a request that could be either harmless or harmful depending on who made it and why?
+Our access control framework solves this by incorporating user verification into safety decisions.
+This reduces over-refusals for legitimate users and prevents under-refusals that lead to decomposition attacks.
+We also proposed a novel content classification approach that promises high efficiency and robustness to attacks, which future work should validate empirically.
+As models gain sophisticated dual-use knowledge, access control frameworks offer a path toward nuanced AI governance that moves beyond blanket restriction policies and allows governments to achieve better oversight without stifling innovation.
 
 \section*{Acknowledgements}
 
