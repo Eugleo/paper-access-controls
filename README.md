@@ -20,7 +20,7 @@
 
 > (8) Would developers actually go along with granting verified users deeper access? Many have refused to do this in the past.
 
-- [ ] Add developer incentives analysis addressing historical reluctance, regulatory pressure, and competitive advantages of surgical vs. blanket restrictions (~0.2 pages)
+- [X] Add developer incentives analysis addressing historical reluctance, regulatory pressure, and competitive advantages of surgical vs. blanket restrictions (~0.2 pages)
 
 > More could be said about potential solutions to legal/ethical challenges arising from access controls. The use of a credential-based access control system opens many questions that, although mentioned in some places, ought to be further explored: How can we prevent such a system from further entrenching disparities in knowledge access? And so on.
 
@@ -28,7 +28,7 @@
 
 Expand discussion in Section 5 (System Limitations and Tradeoffs):
 
-- [ ] Add privacy discussion covering data retention, anonymization, and surveillance concerns (~0.2 pages)
+- [X] Add privacy discussion covering data retention, anonymization, and surveillance concerns (~0.2 pages)
 - [X] Add governance and equity discussion addressing institutional bias, alternative credentialing pathways, and oversight mechanisms (~0.3 pages)
 
 

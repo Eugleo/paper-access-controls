@@ -346,10 +346,9 @@ While this method remains empirically unvalidated for our use case, the properti
 
 \paragraph{Post-Processing}
 
-Post-processing methods offer a proven approach to content classification.
-Methods like constitutional classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} already demonstrate effectiveness in production systems.
-These techniques are highly practical since they operate independently of the model, allowing for rapid deployment and iteration, and they could be adapted to detect content categories and trigger checks of user verifications.
-However, they face a capability gap problem: to minimize latency, the model is sometimes more capable than its post-processing system, and adversaries can exploit this to evade detection \cite{jin2024jailbreakinglargelanguagemodels, kumar2025freelunchguardrails}.
+Post-processing methods such as constitutional classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} offer a proven approach to content classification.
+They operate independently of the model, allowing for rapid deployment and iteration, and they could be adapted to detect content categories and trigger checks of user verifications.
+However, for latency reasons, there is sometimes a capability gap between the model and the post-processing system, which the adversaries can exploit to evade detection \cite{jin2024jailbreakinglargelanguagemodels, kumar2025freelunchguardrails}.
 
 \subsection{System Responses} \label{section:system-responses}
 
@@ -366,7 +365,6 @@ However, the system turns on enhanced logging and conducts additional post-proce
 \label{section:feasibility-and-limitations}
 
 \cref{section:access-controls} identified several technical challenges in the access control system: (1)~some harmful knowledge might decompose into concepts that are all indispensable for harmless applications; (2)~some verifications may be too difficult to obtain; and (3)~content classifiers might produce false positives.
-Although some of these are engineering challenges with partial solutions, we concede that none will be perfectly solvable.
 These challenges will increase user friction, imposing a cost on the utility of the system.
 Prompted by this, we separately analyse the safety-utility trade-off of the proposed system in the two sub-problems caused by the dual-use dilemma.
 
@@ -380,20 +378,18 @@ Model providers can only require verification for requests that would otherwise 
 This is a clear improvement in utility: legitimate users can either accept refusal (current experience) or complete verification to gain access (new option).
 Safety need not be hurt: model providers can design the verification requirements to be strict enough to deter the overwhelming majority of adversaries.
 
-\subsection{Access Controls Sometimes Help Against Under-Restrictions}
+\subsection{Domain-specific Approaches to Under-Restrictions}
 \label{section:under-restriction}
 
 Using access controls against under-restrictions means making some accessible knowledge inaccessible unless the user is verified.
-Here, even a perfect system induces some cost to utility, since legitimate users would have to become verified, and additional drops in utility are caused by the aforementioned technical challenges.
+Thus, even a perfect system takes a toll on utility, since legitimate users would have to become verified, and additional drops in utility are caused by the aforementioned technical challenges.
 
 Model providers can measure the impacts of the system on utility before deployment, for example by conducting partial rollouts.
 They can then walk the safety-utility frontier by tuning the parameters of the system: making verification more or less stringent, raising or lowering classifier thresholds, and so on.
-The optimal point on the frontier will depend on the domain-specific technological constraints, liability requirements, regulatory pressures, and business priorities.
+The optimal point on the frontier will depend on (and will change over time with) the domain-specific technological constraints, liability requirements, regulatory pressures, and business priorities.
 
 In many domains, the default position might be the status quo which offers maximum utility.
-As technology improves, regulatory requirements change, or other conditions evolve, providers can expand the access controls to new domains, or tweak the parameters for existing ones.
-Already now there are domains where some trade-off for safety is favourable.
-Pathogen biology is one such example.
+Pathogen biology is one example of a domain where the trade-off for safety is already favourable.
 Consider an access control system so badly calibrated that all pathogen-related queries would require verification, as a conservative example.
 First, we note that this system would deter at least some adversaries from performing decomposition attacks, improving on the safety of the status quo.
 At the same time, the impact on utility is minimal: only 0.85\% of queries would experience added friction (estimated based on the Anthropic Economic Index, see \cref{appendix:estimating-biology-requests} for details).
@@ -401,46 +397,30 @@ This would likely be acceptable to model providers; for context, existing safety
 
 \subsection{The Incentives for Implementation Grow with Model Scale}
 
-In any case, model providers could implement the access control system only to reduce over-restrictions.
-The business case for this approach strengthens as model capabilities advance.
-New models will possess increasingly sophisticated knowledge across dual-use domains --- valuable for advanced laboratories, research institutions, and other high-value professional users ---that would remain completely inaccessible under current safety systems.
+As models gain more sophisticated knowledge across dual-use domains, both its value (for specialized professional users) and the misuse risks it poses increase.
+Thus, controlling both under-restrictions and over-restrictions will be more and more important, and the business implementing access controls strengthens.
 
-In some domains, the technological, regulatory, and business constraints might make the conditions favourable for the access control system to also be used to address under-restrictions and improve safety.
-As we showed above, some domains like this already exist, and more could be opened e.g. with governmental involvement.
-Also here, the value proposition of the access control system strengthens as model capabilities advance, because denying adversaries from using decomposition attacks to get access to high-risk advanced knowledge becomes more and more important with the rising advanceness of said knowledge.
+\subsection{Limitations and Open Questions}
 
-\paragraph{Open Problems}
+Since the system links real-world identities to requests, it poses a risk of surveillance or leakage of sensitive information.
+Model providers should set up clear privacy policies, inspired by those from other industries that rely on verification.
+For logging and auditing purposes, providers could use existing systems inspired by differential privacy such as Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld}.
 
-Of course, many open problems remain.
-Most importantly of all, we only described the components in abstract and gestured to possible implementations or ways to find them, but the actual system will take a lot of work to design, and more work to iterate upon.
+Secondly, if the verification mechanisms are based on certifications that are not available globally, it might be hard for legitimate researchers in some countries to obtain them.
+This needs to be a key consideration when designing the verification mechanisms, and model providers should work with regional authorities or international bodies to make sure this issue is addressed.
+An interim solutions could be having a manual approval processes for users who cannot obtain the required credentials for structural reasons.
 
-Second, Privacy implications stem from linking real-world identities to model queries, creating surveillance risks and potential chilling effects on legitimate research.
-Policy frameworks must balance verification requirements against legitimate privacy expectations through transparent data handling practices and robust oversight mechanisms.
-Technical approaches like differential privacy for aggregate usage statistics---as demonstrated by Anthropic's Clio system \cite{tamkin2024clioprivacypreservinginsightsrealworld}---can provide insights for safety monitoring while protecting individual user privacy.
-Clear data retention limits and purpose restrictions are essential to prevent mission creep in surveillance capabilities.
+\section{Conclusion}
 
-Finally, we already mentioned problems with equitable access to knowledge.
-Relying solely on certifications common in developed countries could violate the asymmetric verification assumption by making credentials harder for legitimate researchers in developing countries than for well-resourced adversaries.
-Interim solutions include manual approval processes for users who can provide alternative evidence of legitimate need, though this approach only scales for specialized high-risk knowledge with low request volumes.
-Long-term solutions require co-designing verification pathways with regional authorities and international bodies to ensure global accessibility without compromising security.
+We argued that a verification-based access control system could help with both sides of the dual-use dilemma.
+Through describing the four main components of the system, we showed it is feasible to implement.
+We argued that it enables a more granular control of the safety-utility trade-off, which will be desirable in many domains, especially as the models gain new capabilities.
+In section \cref{section:content-classification}, we also proposed a novel technical solution for classifying outputs into risk categories.
+Empirically validating this approach, as well as designing the details of the system for a particular domain, is left for future work.
 
 % So, take my ideas below and structure them. Specifically, some of the ideas talk about what we should have in the introduction. Some of the ideas are like, they talk about the setup. Some of the ideas talk about one part of the problem and some other ideas about the other part. And you should structure these parts separately and order the information in the order that we want to expose it. And you should make sure not to forget about any particular important argument. So first what you should do is you should go part by part and just list in whichever order all the key core pieces of information and important arguments and good ideas that I had below. And then you should make a second pass and reorder the information to make the flow nicer. So what you will do is you will basically have two sections in your answer.
 % And one more thing I wanted to say is that I think there is probably some nice way to think about us splitting the dual use problem to basically the two sub-problems and then solving the problems separately. I think this is a good framework, so we should explicitly do that here, and I will probably go back to the paper and change it there as well, just to make the exposition a bit clearer there as well.
 % Yes, I think you should restructure section 4. But before you do that, we should think harder about how to split the problem. So we mentioned the technical problems and we say that all of them connect to user friction in some way. I think when we are mentioning the problems, we should have one line refutations for the problems as well, and then also say that they connect to friction. So it should be something like, what if the classifiers are very imprecise? And then we say something like, well, we believe that the classifiers will be meaningfully precise because existing classifiers, you know, entropic, et cetera, they have like like 5% false positive rate or something. But sure, like, you know, it connects to friction, there is going to be some friction added. And we do this for these things. But we should definitely mention like all of the technical problems that we mentioned. And we say all of them connect to friction. And now to analyze the friction and whether it'd be worth it, we need to sort of separate the problem and analyze the two sides of the dual use dilemma separately. And one side of the dual use dilemma is, you know, you are rejecting things that you should not be rejecting because they are legitimate. And that's the high risk category, right? And then we make the argument. And then we say, okay, Now let analyze the other side of the dual use dilemma There are some things you should be rejecting but you aren And by the way for the first side of the dual use dilemma we can say something like these things, you know, this is like a clear win, and it is possible to set up the access control system in a way that only does this and doesn't affect the low risk things at all. Because your access, and that's basically our conditional acceptance framework. So that belongs in the section about the first half of the dual use dilemma. And then the second half of the dual use dilemma is more complicated because that's about, you know, some of the things that you are rejecting, that you are not rejecting, you should be rejecting because they are illegitimate. And there we need to make a complicated argument of you know, we have a lot of these systems, they can have different faults. So we need to make, we need to decide like, or the providers need to decide where on the use-misuse curve misuse curve they want to be. And then they will be able to tweak the system so that they are there. And it's always about increasing user friction somewhat. Because the dual use things, the gray zone requests, they will actually be subject to verification. So legitimate users will have to go through verification. And we basically need to think about, OK, how much of this can be afforded? And how much safety are we getting back And in here we should say that in some domains this is going to be an easy trade to make because domains are small enough or specialized enough or they decompose nicely into things where some things can actually be restricted. And our system is very flexible and granular, so it can actually be caught by this. And in these domains, and then we have the example of the biology, and we say, well, in these domains, the trade-off is simple because even under conservative estimates, we actually increase safety, right? And we keep friction comparable to like things that we see that model developers or model providers are okay with accepting, right? And we use our biology example here. And then we say, well, in other domains, This is going to be more complicated because, for example, it's not clear that, I don't know, cybersecurity decomposes in this way. And maybe the conservative estimate would be, you know, very different. Oh, and by the way, we shouldn't mention, you know, we mentioned the biology and like banning all pathogens, etc. and share like that's fine. But then we should actually say, well, this is unrealistic, not only because the classifiers won't be so bad, but also because the content actually decomposes better. So we can, you know, you know, we can sort of pick out, I don't know, things about viral proteins on membranes or something viruses don actually have membranes but bacterial proteins on membranes And we can target that. And so not only is the content classifier going to be better, but also the content category itself is going to be much smaller, and so the friction is going to be orders of magnitude smaller than what we outlined there. So we should say that. And then we say, OK, but maybe this is impossible for some domains. For example, it's unclear whether this is possible for cybersecurity. And in these domains, model developers can opt not to use the system at all or only use it for the high-risk categories to get the clear win, right? But maybe they think that the risks are so big that they swallow the bitter pill and basically, sacrifice some of the user friction to get a lot of, to sort of get a lot of safety back. And the one thing that's like, but it's not clear that they do it, but also they don't have to do it. They don't have to use the system for everything. Maybe there are other ways to like solve problems in these domains. And you know at least like if if governments sort of like push them to do that, they will have a system in place that they can use to very granularly try to address the domain, even if they're not addressing it from day one. We should also say that we think that actually domains will decompose in some way, maybe not perfectly or as nicely everywhere, but we hypothesize that this is going to be possible. But we don't have proof and you know they don't have to do it etc. And one more thing that's speaking, you know, in favor of maybe doing some concessions on user friction is that, you know, ideally if you are verification mechanisms, you know, you're choosing some verification mechanisms. And, you know, there's a whole set of different things you could be using from different industries. You can take inspiration, et cetera. And, you know, if you choose them well, so the selection is like wide. And if you choose them well, the selection mechanism, sorry, the verification mechanism will be harder for an adversary to go through than for a legitimate user. So actually, when you add friction to the system, you're adding disproportionately more friction to the adversary. And so, you know, this doesn't hold always, but it's a useful intuition to have that shows you that, you know, sometimes it sort of makes the deal sweeter for the model providers, where, you know, if it was like one to one, you know, like they, because we're focusing now on like the harms and we're in like the sort of bad domains where it's like really difficult to solve these problems. And we like have to add user friction in order to get some safety. Well, the one last thing that remains is that the safety actually, we sort of get more safety for each piece of user friction. Right. The problem is that actually, you know, this shouldn't be only because there are like much more, much many more normal users than adversaries. So actually, you know, if we add, so in relative terms, it holds. We add more friction to adversaries than to normal users, but maybe in absolute terms, it's not so clear. But still, it's something we should be thinking about. And, you know, what brings this together is, you know, in domains where this is difficult, model developers don't have to do anything. But there are domains where this is going to be easy, easier. You know, in biology, we have the conservative estimate. And in chemistry, we can call out the chemical weapons convention that basically specifies, you know, I think we mentioned it already somewhere, that already specifies some like precursors and stuff. So there's probably something that also like decomposes nicely. And, you know, we can build classifiers that sort of detect specialized equipment and stuff. So, you know, there are some arguments for some domains that are weaker for other domains, but that just, you know, developers can just implement it for some domains at first. And then they can like think about and test it. And, you know, they can walk the frontier so they can fine tune it to their needs. All of this stuff.
-
-\section{Conclusion}
-
-We argued that safety systems that do not utilize contextual
-information face a lose-lose \emph{dual-use dilemma}: they will
-restrict model utility for some legitimate users while still allowing
-some adversaries to use the model for ill. To address this problem,
-we introduced a new access control framework that limits access to
-outputs from certain risk categories only to users with relevant
-verifications (which serve as proxies for trustworthy real-world
-context). We also proposed a novel technical solution for classifying
-outputs into risk categories based on gradient routing that has the
-potential to resolve the efficiency-robustness trade-off of
-post-processing methods.
 
 \section*{Acknowledgements}
 
