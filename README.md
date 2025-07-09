@@ -1,6 +1,6 @@
 # Nice to have
 
-- [ ] Differentiate better between safety training methods and post-processing attacks
+- [X] Differentiate better between safety training methods and post-processing attacks
     - Both could be trained to work with context, but with post-processing this would be faster to achieve, more transparent, and easier to update.
 
 > (10) so much rests on figure 1, it'd be great to have a more detailed figure describing how you want to embed risk tiering into models in the appendix. 
