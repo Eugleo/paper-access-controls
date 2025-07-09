@@ -412,11 +412,11 @@ An interim solutions could be having a manual approval processes for users who c
 
 \section{Conclusion}
 
-We argued that a verification-based access control system could help with both sides of the dual-use dilemma.
-Through describing the four main components of the system, we showed it is feasible to implement.
-We argued that it enables a more granular control of the safety-utility trade-off, which will be desirable in many domains, especially as the models gain new capabilities.
-In section \cref{section:content-classification}, we also proposed a novel technical solution for classifying outputs into risk categories.
-Empirically validating this approach, as well as designing the details of the system for a particular domain, is left for future work.
+Current safety systems face a dual-use dilemma: the same request can be harmless or harmful depending on who made it and why.
+Access controls solve this by incorporating user verification into safety decisions, moving beyond non-contextual analysis.
+This approach increases utility by reducing over-refusals, and also improves safety in applicable domains by helping prevent decomposition attacks.
+We also proposed a content classification approach that promises high efficiency and robustness to attacks, which future work should validate empirically.
+The access control framework becomes increasingly valuable as models gain sophisticated dual-use knowledge, offering a path toward nuanced AI governance that benefits both sides of the utility-safety Pareto frontier.
 
 % So, take my ideas below and structure them. Specifically, some of the ideas talk about what we should have in the introduction. Some of the ideas are like, they talk about the setup. Some of the ideas talk about one part of the problem and some other ideas about the other part. And you should structure these parts separately and order the information in the order that we want to expose it. And you should make sure not to forget about any particular important argument. So first what you should do is you should go part by part and just list in whichever order all the key core pieces of information and important arguments and good ideas that I had below. And then you should make a second pass and reorder the information to make the flow nicer. So what you will do is you will basically have two sections in your answer.
 % And one more thing I wanted to say is that I think there is probably some nice way to think about us splitting the dual use problem to basically the two sub-problems and then solving the problems separately. I think this is a good framework, so we should explicitly do that here, and I will probably go back to the paper and change it there as well, just to make the exposition a bit clearer there as well.
@@ -448,6 +448,7 @@ There are three levels of topic granularity; we use the lowest, most granular le
 
 We filtered the dataset to only include conversations whose topic contains one of the following keywords related to biology: \emph{cell} (when at the beginning of the word), \emph{genet}, \emph{genom}, \emph{microb}, \emph{bacteria}, \emph{virus}, \emph{viral}, \emph{proteo}, \emph{protei}, \emph{immune}, \emph{neuro}, \emph{patho}, \emph{infect}; we also required that it does not contain any of the following keywords to avoid false positives: \emph{nutri}, \emph{tweet}, \emph{agric}, \emph{sexual health}.
 The total proportion of these requests was 0.85\%.
+When we applied similar methodology to identify requests related to any kind of biology, the proportion was 2.98\%.
 
 \end{document}
 
