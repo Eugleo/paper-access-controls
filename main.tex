@@ -348,50 +348,47 @@ Other possible responses include content generation with a steered model, or gra
 \section{Feasibility and Limitations}
 \label{section:feasibility-and-limitations}
 
-\cref{section:access-controls} identified several technical challenges in the access control system: (1)~some harmful knowledge might decompose into concepts that are all indispensable for harmless applications; (2)~some verifications may be too difficult to obtain; and (3)~content classifiers might produce false positives.
-These challenges will increase user friction, imposing a cost on the utility of the system.
-Prompted by this, we separately analyse the safety-utility tradeoff of the proposed system in the two sub-problems caused by the dual-use dilemma.
+\Cref{section:access-controls} identified several technical challenges: (1)~some harmful knowledge might decompose into concepts that are all indispensable for harmless applications; (2)~some verifications may be difficult to obtain; and (3)~content classifiers might produce false positives.
+These challenges increase user friction and impose utility costs.
+We analyse how access controls affect the safety-utility tradeoff in the both over-refusals and under-refusals.
 
 \subsection{Access Controls Help Against Over-Refusals}
 
-In the cases of over-refusals, there is no tradeoff.
-Even after taking the technological challenges into account, using access controls is a strict improvement to status quo.
-
+For over-refusals, access controls can provide a strict improvement over the status quo, even with the technical challenges.
 Model providers can only require verification for requests that would otherwise be refused.
 This is a clear improvement in utility: legitimate users can either accept refusal (current experience) or complete verification to gain access (new option).
 Safety need not be hurt: model providers can design the verification requirements to be strict enough to deter the overwhelming majority of adversaries.
 
 \subsection{Domain-specific Approaches to Under-Refusals}
 
-Using access controls against under-refusals means making some accessible knowledge inaccessible unless the user is verified.
-Thus, even a perfect system takes a toll on utility, since legitimate users would have to become verified, and additional drops in utility are caused by the aforementioned technical challenges.
+Using access controls to prevent under-refusals means making some accessible knowledge require verification.
+Thus, even a perfect system takes a toll on utility since legitimate users must get verified, with additional costs caused by the technical challenges mentioned above.
 
 Model providers can measure the impacts of the system on utility before deployment, for example by conducting partial rollouts.
 They can then walk the safety-utility frontier by tuning the parameters of the system: making verification more or less stringent, raising or lowering classifier thresholds, and so on.
 The optimal point on the frontier will depend on (and will change over time with) the domain-specific technological constraints, liability requirements, regulatory pressures, and business priorities.
 
 In many domains, the default position might be the status quo which offers maximum utility.
-Pathogen biology is one example of a domain where the tradeoff for safety is already favourable.
-Consider an access control system so badly calibrated that all pathogen-related queries would require verification, as a conservative example.
+Pathogen biology is one example of a domain where the tradeoff for safety is already favourable, while also being safety-relevant: a recent study found that frontier models have more tacit knowledge than 94\% of expert virologists \cite{gotting2025virologycapabilitiestestvct}.
+Consider an access control system so badly calibrated that all pathogen-related queries would require verification.
+This represents an upper bound on friction since real implementations would be far more targeted.
 First, we note that this system would deter at least some adversaries from performing decomposition attacks, improving on the safety of the status quo.
 At the same time, the impact on utility is minimal: only 0.85\% of queries would experience added friction (estimated based on the Anthropic Economic Index, see \cref{appendix:estimating-biology-requests} for details).
 This would likely be acceptable to model providers; for context, existing safety systems like Constitutional Classifiers incorrectly refuse around 0.5\% queries \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
+Other domains like cybersecurity may face different challenges and would require domain-specific analysis before implementation.
 
 \subsection{The Incentives for Implementation Grow with Model Scale}
 
-Frontier models already outperform 94\% of expert virologists on a recent benchmark \cite{gotting2025virologycapabilitiestestvct}.
 As models gain even more sophisticated knowledge across dual-use domains, the value of the knowledge (for specialized professional users) and the misuse risks it poses increase.
 Thus, controlling both under-refusals and over-refusals will be more and more important, and the business implementing access controls strengthens.
 
 \subsection{Limitations and Open Questions}
 
-Since the system links real-world identities to requests, it poses a risk of surveillance or leakage of sensitive information.
-Model providers should set up clear privacy policies, inspired by those from other industries that rely on verification.
-For logging and auditing purposes, providers could use existing systems inspired by differential privacy such as Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld}.
+Since the system links real-world identities to requests, it poses risks of surveillance and information leakage.
+Model providers should establish clear privacy policies and use privacy-preserving systems like Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld} for logging and auditing.
 
-Secondly, if the verification mechanisms are based on certifications that are not available globally, it might be hard for legitimate researchers in some countries to obtain them.
-This needs to be a key consideration when designing the verification mechanisms, and model providers should work with regional authorities or international bodies to make sure this issue is addressed.
-An interim solutions could be having a manual approval processes for users who cannot obtain the required credentials for structural reasons.
+Additionally, using verification mechanisms based on certifications that are not available globally could exclude legitimate researchers from access.
+Model providers should work with regional authorities to address this, with interim manual approval processes for users facing structural barriers.
 
 \section{Conclusion}
 
