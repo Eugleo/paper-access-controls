@@ -207,7 +207,7 @@ Nevertheless, these methods could be modified to incorporate external contextual
 \section{Access Controls as a Solution}
 \label{section:access-controls}
 
-Current safety systems face the dual-use dilemma because they lack trustworthy information about who is making a request and why.
+Current safety systems face the dual-use dilemma because they lack trustworthy information about who is making the request and why.
 In this section, we describe an access control system that addresses this problem by verifying user credentials before granting access to sensitive knowledge.
 
 \subsection{Overview of the Access Control Framework} \label{section:access-control-overview}
@@ -218,8 +218,8 @@ When model providers set up the system, they will make two core design choices w
 First, they will define \textbf{content categories} (\cref{section:content-categories}): groups of sensitive topics organized by domain and risk rating.
 Second, for each content category, they will specify a \textbf{verification mechanism} (\cref{section:verification-mechanisms}): the verification process users must complete to access that category.
 
-Whenever the model generates an output, the system will perform \textbf{content classification} (\cref{section:content-classification}) to check whether the model's output belongs to any predefined content category.
-If the user lacks authorization for the detected category, the system will implement graduated \textbf{system responses} (\cref{section:system-responses}) ranging from enhanced logging to refusal.
+Whenever the model generates an output, the system will perform \textbf{content classification} (\cref{section:content-classification}) to check whether the model's output belongs to any of the predefined content categories.
+If the user lacks authorization for the detected category, the system will take graduated \textbf{system responses} (\cref{section:system-responses}) ranging from enabling enhanced logging to a full refusal.
 
 \begin{table}[t]
   \caption{Example content categories in pathogen biology.}
@@ -240,10 +240,10 @@ If the user lacks authorization for the detected category, the system will imple
 
 While the exact categorization will be domain-specific, we anticipate a common pattern where the majority of content remains freely accessible, with progressively more stringent verification requirements for higher-risk categories.
 \Cref{table:biology-examples} illustrates how this might look in pathogen biology.
-Under this example, if a user asks our running question about viral surface proteins, the system would detect that the request belongs to a high-risk category, check whether the user has the required biosafety certification, and either provide the information or prompt them to complete verification first.
+Under this example, if a user asks the question about viral surface proteins, the system would detect that the request belongs to a high-risk category, check whether the user has the required biosafety certification, and either provide the information or prompt them to complete verification first.
 
 This approach directly addresses the dual-use dilemma by preventing under-refusals and reducing over-refusals.
-Decomposition attacks become much harder because the system refuses grey-zone requests by default—attackers would need legitimate credentials rather than clever prompting.
+Decomposition attacks become much harder because the system refuses grey-zone requests by default --- attackers would need legitimate credentials rather than clever prompting.
 Simultaneously, verified users gain access to specialized knowledge that would otherwise face blanket restrictions under current approaches.
 We discuss the feasibility and limitations of this framework, including considerations around user friction, in \cref{section:feasibility-and-limitations}.
 
@@ -255,9 +255,9 @@ However, since existing frameworks typically categorize only high-level concepts
 
 For instance, cultivating and handling a dangerous BSL-3 pathogen might involve multiple distinct knowledge components: (1) specific procurement methods, (2) cultivation techniques, (3) purification methods, and (4) protocols for specialized equipment.
 For each component, experts would assess how often it enables harmless versus harmful applications, then assign it to an appropriate risk category.
-This decomposition approach transforms broad regulatory categories into granular knowledge components that can be individually controlled, as illustrated by the different risk levels in \cref{table:biology-examples}.
+This decomposition approach transforms broad categories into granular knowledge components that can be individually controlled, as illustrated by the different risk levels in \cref{table:biology-examples}.
 
-Evidence from chemistry suggests this approach is sometimes feasible: the risk schedules of the Chemical Weapons Convention already identify not just controlled compounds but also their precursors and specific equipment~\cite{OPCW_CWC_1993}, demonstrating successful decomposition into components.
+Evidence from chemistry suggests this approach is at least sometimes feasible: the risk schedules of the Chemical Weapons Convention already identify not just controlled compounds but also their precursors~\cite{OPCW_CWC_1993}, demonstrating successful decomposition into components.
 Nevertheless, some harmful applications might not decompose so neatly; we discuss this limitation in \cref{section:feasibility-and-limitations}.
 
 \subsection{Verification Mechanisms} \label{section:verification-mechanisms}
@@ -267,11 +267,10 @@ Rather than creating new systems, model providers will build on existing verific
 
 For moderate-risk categories, model providers could use established identity verification services like Stripe Identity~\cite{stripe_identity_2024} or institutional systems like ORCID~\cite{orcid_2024}.
 These systems provide global, standardized, low-friction solutions with one-time costs under \$2 per user.
-They would serve primarily to maintain audit trails for post-incident investigation and provide a deterrent effect, rather than as security barriers for high-risk knowledge.
+They would serve primarily to maintain audit trails for post-incident investigation and provide a deterrent effect.
 
 High-risk categories could leverage existing domain-specific certifications that demonstrate users' ability to handle sensitive information and materials responsibly.
-Model providers would work with domain experts and national authorities to identify appropriate certifications, adapting existing physical-world credential systems to knowledge access control.
-In biology, this might include governmental certifications for handling dangerous pathogens, with equivalent certifications recognized across countries.
+In biology, this might include governmental certifications for handling high BSL pathogens, and equivalent certifications in other countries.
 
 This approach faces several limitations, including the risk of being overly restrictive and concerns about equitable access across different countries.
 We discuss these limitations and potential solutions in \cref{section:feasibility-and-limitations}.
@@ -285,7 +284,7 @@ We leave the discussion of how classification errors might influence user experi
 
 \paragraph{Separate Models}
 
-The most straightforward approach is to create separate models with different capabilities, and route users to the appropriate model based on their authorization.
+The most straightforward approach is to train separate models with different capabilities, and route users to the appropriate model based on their authorization.
 
 This approach offers strong robustness against adversarial attacks since unauthorized knowledge is physically absent from the model.
 However, this approach proves impractical for real deployment, as model providers would need to train and maintain potentially dozens of model variants.
@@ -310,25 +309,25 @@ However, this approach proves impractical for real deployment, as model provider
 Instead of maintaining separate models, model providers could use a single model with separate expert modules that activate when their specialized knowledge is required.
 \Cref{figure:main} illustrates how this approach might work when a user poses a grey-zone question.
 
-To implement this, we propose a novel method that would combine UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients} to concentrate distributed knowledge into specialized expert modules.
-The approach would first unlearn knowledge belonging to content categories from the base model, then distill this unlearned model into a new model with expert modules for each category.
+To implement this, we could concentrate distributed knowledge into specialized expert modules using a novel method that would combine UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
+The approach would first unlearn knowledge belonging to content categories from the base model, then distil this unlearned model into a new model with expert modules for each category.
 During distillation, gradients from examples in each content category would be routed exclusively through their associated expert modules, while the model would be trained to activate experts only when generating relevant content.
 
 This approach could offer several advantages.
-It would likely add minimal latency since expert modules would be small and infrequently activated.
+It would likely add minimal latency since the expert modules would be small.
 More importantly, it could provide strong robustness: if an attacker prevented expert module activation to avoid detection, they would simultaneously prevent access to the specialized knowledge stored in that module, making the attack self-defeating.
 While this method remains entirely theoretical and requires empirical validation, these potential properties make it worth investigating.
 
 \paragraph{Post-Processing}
 
-Post-processing methods such as Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} offer a proven approach to content classification.
+Moving from theoretical approaches to more practical ones, post-processing methods such as Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal} offer a proven approach to content classification.
 They operate independently of the model, allowing for rapid deployment and iteration, and they could be adapted to detect content categories and trigger checks of user verifications.
 However, for latency reasons, there is sometimes a capability gap between the model and the post-processing system, which adversaries can exploit to evade detection \cite{jin2024jailbreakinglargelanguagemodels, kumar2025freelunchguardrails}.
 
 \subsection{System Responses} \label{section:system-responses}
 
 When content classification detects restricted categories, the system can implement various responses depending on the risk level and classification confidence.
-This provides an additional parameter that model providers can tune based on their specific requirements.
+This provides an additional parameter that model providers can tune based on their specific stringency requirements.
 
 For example, outputs classified as restricted with high confidence might be immediately refused, with the system providing a message indicating which verification is required for access.
 For borderline classifications where confidence is low, the system might allow response generation while enabling enhanced logging and additional safety review before serving the output to the user.
