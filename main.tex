@@ -119,7 +119,7 @@
   Instead, they make arbitrary decisions that end up hurting both utility and safety: they sometimes refuse legitimate queries and other times fail to refuse harmful ones.
   To address this, we propose a conceptual framework based on access controls in which only verified users can access dual-use outputs.
   We describe the framework's components, analyse its feasibility, and explain how it addresses both over-refusals and under-refusals.
-  While only a high-level proposal, our work takes the first step toward enabling granular AI governance that could transform the traditional utility-safety trade-off: users would gain access to more capabilities without sacrificing safety, and regulators would achieve better oversight without stifling innovation.
+  While only a high-level proposal, our work takes the first step toward enabling more nuanced safety decisions: by giving model providers better tools for managing dual-use content, users could access more capabilities without sacrificing safety, and regulators would have options for more targeted policies.
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
@@ -161,9 +161,9 @@ We also describe how the framework addresses both issues caused by the dual-use 
 \textbf{Additionally}, we propose a novel theoretical approach to content category classification based on recent methods for robust unlearning, UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
 This approach avoids the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
 
-Current regulatory approaches choose between blanket restrictions of capabilities that stifle innovation and blanket permissions that create safety risks.
+Current approaches to AI safety force crude trade-offs between blanket restrictions that stifle beneficial uses and permissive policies that enable misuse.
 Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by a recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
-Future implementations of such frameworks could enable granular policies that differentiate between types of users and their contexts.
+By giving model providers better tools for contextual safety decisions, access control frameworks could benefit all stakeholders --- enabling users to access more capabilities whilst providing regulators with a way to avoid blunt regulatory instruments.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
@@ -387,8 +387,8 @@ Model providers should work with regional authorities to address this and offer 
 Current safety systems face a dual-use dilemma: should they refuse a request that could be either harmless or harmful depending on who made it and why?
 Our access control framework addresses this by incorporating user verification into safety decisions, reducing over-refusals for legitimate users whilst preventing under-refusals that enable decomposition attacks.
 We also propose a novel content classification approach that could offer high efficiency and robustness to attacks, though this theoretical contribution requires empirical validation.
-As models develop increasingly sophisticated dual-use knowledge, governments face increasingly difficult regulatory choices between preserving safety and fostering innovation.
-Access control frameworks could ease these choices by enabling more nuanced governance that differentiates between user types and contexts.
+As models develop increasingly sophisticated dual-use knowledge, model providers need better tools for managing the tension between utility and safety.
+Access control frameworks offer a path toward more nuanced safety decisions that could benefit all stakeholders --- improving outcomes for users whilst providing regulators with granular governance options that avoid crude policy trade-offs.
 
 \section*{Acknowledgements}
 
