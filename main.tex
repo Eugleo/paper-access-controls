@@ -136,7 +136,11 @@ In the grey zone, the harmfulness of a request depends not on its content, but o
   \begin{center}
     \centerline{\includegraphics[width=\columnwidth]{assets/main.pdf}}
     \caption{
-      The dual-use dilemma: the same question can be harmless or harmful depending on who asks it. Should we refuse it or not? Current safety systems must decide without knowing the user's context. This leads to over-refusals (blocking legitimate users) and under-refusals (allowing bad actors). Verification-based access controls solve this by detecting grey-zone questions, obtaining real-world context about users, and making contextual decisions that can get both cases right.
+      The dual-use dilemma: the same question could be harmless or harmful depending on who asks it.
+      Should we refuse to answer it?
+      Current safety systems must decide without knowing the user's context.
+      This leads to over-refusals (blocking legitimate users) and under-refusals (allowing bad actors).
+      Verification-based access controls solve this by detecting grey-zone questions, obtaining real-world context about users, and making contextual decisions that can get both cases right.
     }
     \label{figure:main}
   \end{center}
@@ -380,11 +384,11 @@ Model providers should work with regional authorities to address this and offer 
 
 \section{Conclusion}
 
-Current safety systems face a dual-use dilemma when encountering grey-zone requests: should they refuse a request that could be either harmless or harmful depending on who made it and why?
-Our access control framework solves this by incorporating user verification into safety decisions.
-This reduces over-refusals for legitimate users and prevents under-refusals that lead to decomposition attacks.
-We also proposed a novel content classification approach that promises high efficiency and robustness to attacks, which future work should validate empirically.
-As models gain sophisticated dual-use knowledge, access control frameworks offer a path toward nuanced AI governance that moves beyond blanket restriction policies and allows governments to achieve better oversight without stifling innovation.
+Current safety systems face a dual-use dilemma: should they refuse a request that could be either harmless or harmful depending on who made it and why?
+Our access control framework addresses this by incorporating user verification into safety decisions, reducing over-refusals for legitimate users whilst preventing under-refusals that enable decomposition attacks.
+We also propose a novel content classification approach that could offer high efficiency and robustness to attacks, though this theoretical contribution requires empirical validation.
+As models develop increasingly sophisticated dual-use knowledge, governments face increasingly difficult regulatory choices between preserving safety and fostering innovation.
+Access control frameworks could ease these choices by enabling more nuanced governance that differentiates between user types and contexts.
 
 \section*{Acknowledgements}
 
