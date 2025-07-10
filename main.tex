@@ -143,11 +143,11 @@ In the grey zone, the harmfulness of a request depends not on its content, but o
   \vskip -0.2in
 \end{figure}
 
-Safety systems that rely solely on content immediately face the \emph{dual-use dilemma}.
+Safety systems that rely solely on content analysis immediately face the \emph{dual-use dilemma}.
 When confronted with a grey-zone request, should they refuse it or not?
 This forces arbitrary decisions that reduce both utility and safety: some legitimate queries are refused (over-refusals) while some harmful ones are not (under-refusals).
-Some safety systems attempt to address this by inferring the context of the request from its contents or the chat history.
-However, this context is fully user-supplied and can be easily fabricated by adversaries.
+Certain safety systems attempt to address this by inferring the context of the request from its contents or the chat history.
+However, this inferred context is based entirely on user-provided inputs and can be easily fabricated by adversaries.
 
 In this paper, we argue that informative, hard-to-fabricate real-world context can be obtained through user-level verifications such as ID checks, institutional affiliations, or government-issued certifications.
 We address the dual-use dilemma with two contributions.
@@ -157,9 +157,9 @@ We also describe how the framework addresses both issues caused by the dual-use 
 \textbf{Additionally}, we propose a novel theoretical approach to content category classification based on recent methods for robust unlearning, UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
 This approach avoids the capability gap between a model and its monitors that can make output monitoring methods non-robust \cite{jin2024jailbreakinglargelanguagemodels}.
 
-Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by a recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
 Current regulatory approaches choose between blanket restrictions of capabilities that stifle innovation and blanket permissions that create safety risks.
-Future implementations of such frameworks could instead enable granular policies that differentiate between types of users and their contexts.
+Our framework represents a first step toward solving the challenge of ``detection and authorization of dual-use capability at inference time'' highlighted by a recent survey of problems in technical AI governance \cite{reuel2025openproblemstechnicalai}.
+Future implementations of such frameworks could enable granular policies that differentiate between types of users and their contexts.
 
 \section{Current Safety Methods Don't Solve the Dual-Use Dilemma}
 \label{section:current-methods}
