@@ -128,21 +128,23 @@
 antibodies?}
 
 Is this question safe to answer?
-While some user requests and large language model outputs are clearly benign or clearly harmful, many fall in the grey zone in the middle, as illustrated in \cref{figure:main}.
+While some user requests and large language model outputs are clearly benign or harmful, many fall in the grey zone in the middle, as illustrated in \cref{figure:main}.
 In the grey zone, the harmfulness of a request depends not on its content, but on its \emph{real-world context}: who made it and for what purpose.
+
+% TODO
+% Option A: The Dual-Use Dilemma Visualization
+% Reader state before: Knows there's some AI safety problem but doesn't understand what makes it fundamentally challenging.
+% Reader state after: Grasps that identical requests can be harmless or harmful depending on who asks, and current systems can't distinguish between these cases, leading to impossible choices.
+% How it works: Visual showing the same question with three scenarios: (1) Legitimate researcher asking → should allow (green), (2) Bad actor asking → should refuse (red), (3) Current AI system → can't tell the difference, makes arbitrary decisions (yellow/confused). Simple icons and clear visual metaphors communicate the core dilemma instantly.
+% This immediately shows why the problem is hard and important, creating curiosity about how anyone could possibly solve such a dilemma. It's the perfect setup for your solution.
 
 \begin{figure}[t]
   \vskip 0.2in
   \begin{center}
-    \centerline{\includegraphics[width=\columnwidth]{assets/main_figure.pdf}}
+    \centerline{\includegraphics[width=\columnwidth]{assets/main.pdf}}
     \caption{
-      The user asks a question from the grey zone: one that could be either harmless or harmful, depending on its real-world context.
-      The schema shows how the access control system we propose would handle it.
-      (1)~The model begins to answer the question because it is trained to be helpful.
-      (2)~During the forward pass, the model detects the question is about virology and activates its virology expert module that contains knowledge specific to that topic.
-      (3)~The activation of the expert is observed by an external mechanism that immediately (4)~checks in the company's database if the user has the required authorization to access virology knowledge.
-      (5)~Since they don't, the model is stopped.
-    If they did, the model would be allowed to give an answer.}
+      The dual-use dilemma: the same question can be harmless or harmful depending on who asks it. Should we refuse it or not? Current safety systems must decide without knowing the user's context. This leads to over-refusals (blocking legitimate users) and under-refusals (allowing bad actors). Verification-based access controls solve this by detecting grey-zone questions, obtaining real-world context about users, and making contextual decisions that can get both cases right.
+    }
     \label{figure:main}
   \end{center}
   \vskip -0.2in
@@ -172,11 +174,11 @@ Future implementations of such frameworks could instead enable granular policies
 The dual-use dilemma causes two issues: over-refusals and under-refusals.
 Over-refusals reduce model utility for legitimate users, which is clearly undesirable.
 Under-refusals are equally problematic because they enable decomposition attacks \cite{glukhov2023llmcensorshipmachinelearning, glukhov2024breachthousandleaksunsafe}.
-These attacks transform clearly harmful queries, such as ``How to modify a virus to avoid immune detection?'', into series of mundane grey zone questions, such as ``What features of viral surface proteins are recognized by human antibodies?'' from \cref{figure:main}.
-Safety systems would refuse the harmful query but do not refuse the grey zone questions since they are not individually harmful.
+These attacks transform clearly harmful queries, such as ``How to modify a virus to avoid immune detection?'', into series of mundane grey-zone questions, such as ``What features of viral surface proteins are recognized by human antibodies?'' from \cref{figure:main}.
+Safety systems would refuse the harmful query but do not refuse the grey-zone questions since they are not individually harmful.
 Through these attacks, adversaries exploit under-refusals to decrease system safety.
 
-Since whether a grey zone request should be refused depends on who made it and why, preventing both over-refusals and under-refusals requires access to real-world context.
+Since whether a grey-zone request should be refused depends on who made it and why, preventing both over-refusals and under-refusals requires access to real-world context.
 This means that the traditional focus on resilience against jailbreak and prompt injections is orthogonal to this problem.
 Instead, we evaluate three approaches from the AI safety literature to see how sensitive they are to contextual information, and whether their sources of real-world context are trustworthy --- that is, hard to manipulate by an adversary.
 
@@ -202,10 +204,9 @@ Unlike unlearning, these methods are contextual.
 They don't remove capabilities entirely but train the model to selectively deploy them based on, among other things, the perceived legitimacy and harmlessness of the request.
 However, these qualities are entirely inferred from content supplied by the user, such as the request content or the chat history.
 It should be no surprise, then, that models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to in-chat context through multi-round escalation \cite{russinovich2025greatwritearticlethat}.
-Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey zone requests.
-These methods could be modified to incorporate external contextual information, e.g. by giving the model access to the user's ID or institutional affiliation.
-Although this makes sense exploring, it would likely result in a more opaque and less modular system than making similar modifications to post-processing methods.
-We discuss these next.
+Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey-zone requests.
+Future work could try modifying these methods to incorporate external contextual information, e.g. by giving the model access to the user's ID or institutional affiliation.
+It would likely result in a more opaque and less modular system than making similar modifications to post-processing methods.
 
 \subsection{Post-Processing: External Systems React to Context} \label{section:post-processing}
 
@@ -300,12 +301,25 @@ The most straightforward approach is to create separate models with different ca
 This approach offers strong robustness against adversarial attacks since unauthorized knowledge is physically absent from the model.
 However, this approach proves impractical for real deployment, as model providers would need to train and maintain potentially dozens of model variants.
 
+\begin{figure}[t]
+  \vskip 0.2in
+  \begin{center}
+    \centerline{\includegraphics[width=\columnwidth]{assets/experts.pdf}}
+    \caption{
+      The schema shows how an access control system could be implemented with specialized expert modules.
+      (1)~The model begins to answer the question because it is trained to be helpful.
+      (2)~During the forward pass, the model detects the question is about virology and activates its virology expert module that contains relevant knowledge.
+      (3)~The activation of the expert is observed by an external mechanism that (4)~checks in the company's database if the user has the required authorization to access virology knowledge.
+      (5)~Since they don't, the model is stopped.
+    If they did, the model would be allowed to give an answer.}
+  \end{center}
+  \vskip -0.2in
+\end{figure}
+
 \paragraph{Specialized Expert Modules}
 
 Instead of maintaining separate models, model providers could use a single model with separate expert modules that activate when their specialized knowledge is required.
-\Cref{figure:main} illustrates how this approach might work when a user asks about viral surface proteins.
-The model would activate its virology expert module, and an external system would observe this activation, check the user's credentials, and decide whether to allow the response.
-This method could approximate the benefits of physically separated models while avoiding the overhead.
+\Cref{figure:main} illustrates how this approach might work when a user poses a grey-zone question.
 
 To implement this, we propose a novel method that would combine UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients} to concentrate distributed knowledge into specialized expert modules.
 The approach would first unlearn knowledge belonging to content categories from the base model, then distill this unlearned model into a new model with expert modules for each category.
@@ -381,7 +395,7 @@ An interim solutions could be having a manual approval processes for users who c
 
 \section{Conclusion}
 
-Current safety systems face a dual-use dilemma when encountering grey zone requests: should they refuse a request that could be either harmless or harmful depending on who made it and why?
+Current safety systems face a dual-use dilemma when encountering grey-zone requests: should they refuse a request that could be either harmless or harmful depending on who made it and why?
 Our access control framework solves this by incorporating user verification into safety decisions.
 This reduces over-refusals for legitimate users and prevents under-refusals that lead to decomposition attacks.
 We also proposed a novel content classification approach that promises high efficiency and robustness to attacks, which future work should validate empirically.
