@@ -167,9 +167,9 @@ Future implementations of such frameworks could enable granular policies that di
 The dual-use dilemma causes two issues: over-refusals and under-refusals.
 Over-refusals reduce model utility for legitimate users, which is clearly undesirable.
 Under-refusals are equally problematic because they enable decomposition attacks \cite{glukhov2023llmcensorshipmachinelearning, glukhov2024breachthousandleaksunsafe}.
-These attacks transform clearly harmful queries, such as ``How to modify a virus to avoid immune detection?'', into series of mundane grey-zone questions, such as ``What features of viral surface proteins are recognized by human antibodies?'' from \cref{figure:main}.
-Safety systems would refuse the harmful query but do not refuse the grey-zone questions since they are not individually harmful.
-Through these attacks, adversaries exploit under-refusals to decrease system safety.
+These attacks transform clearly harmful queries, such as ``How to modify a virus to avoid immune detection?'', into series of mundane grey-zone questions, such as the question about viral surface proteins from \cref{figure:main}.
+Safety systems would refuse the harmful query but do not refuse the grey-zone ones.
+Through these attacks, adversaries exploit under-refusals in a way that compromises system safety.
 
 Since whether a grey-zone request should be refused depends on who made it and why, preventing both over-refusals and under-refusals requires access to real-world context.
 This means that the traditional focus on resilience against jailbreak and prompt injections is orthogonal to this problem.
@@ -177,11 +177,8 @@ Instead, we evaluate three approaches from the AI safety literature to see how s
 
 \subsection{Unlearning: Non-Contextual Removal of Concepts}
 
-Unlearning methods aim to remove specific knowledge, concepts, or
-capabilities from a model after training
-\cite{liu2024rethinkingmachineunlearninglarge}. Their goal is to
-eliminate the model's ability to generate harmful content while
-preserving other capabilities.
+Unlearning methods aim to remove specific knowledge, concepts, or capabilities from a model after training \cite{liu2024rethinkingmachineunlearninglarge}.
+Their goal is to eliminate the model's ability to generate harmful content while preserving other capabilities.
 
 Unlearning faces significant technical challenges even for preventing behaviours that are clearly harmful.
 As noted by \citet{cooper2024machineunlearningdoesntthink} and \citet{barez2025openproblemsmachineunlearning}, capabilities are hard to define, hard to remove without side effects, and hard to trace back to specific data points.
@@ -195,15 +192,14 @@ This category includes safety pre-training \cite{maini2025safetypretraininggener
 
 Unlike unlearning, these methods are contextual.
 They don't remove capabilities entirely but train the model to selectively deploy them based on, among other things, the perceived legitimacy and harmlessness of the request.
-However, these qualities are entirely inferred from content supplied by the user, such as the request content or the chat history.
-It should be no surprise, then, that models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to in-chat context through multi-round escalation \cite{russinovich2025greatwritearticlethat}.
-Without access to trustworthy real-world context of the request, the model cannot make truly informed decisions about grey-zone requests.
-Future work could try modifying these methods to incorporate external contextual information, e.g. by giving the model access to the user's ID or institutional affiliation.
-It would likely result in a more opaque and less modular system than making similar modifications to post-processing methods.
+However, these qualities are entirely inferred from user-supplied information, such as the request text or chat history.
+Without access to trustworthy real-world context, the model cannot make truly informed decisions about grey-zone scenarios.
+For example, models are susceptible to attacks that fabricate in-chat context \cite{zeng2024johnnypersuadellmsjailbreak}, or attacks that diminish models' sensitivity to it \cite{russinovich2025greatwritearticlethat}.
+While modifying these methods to incorporate external contextual information is possible in theory, it would likely result in a more opaque and less modular system than making similar modifications to post-processing methods.
 
 \subsection{Post-Processing: External Systems React to Context} \label{section:post-processing}
 
-Post-processing methods are systems that classify user inputs and model outputs for the purposes of steering the underlying model, or monitoring and filtering its outputs.
+Post-processing methods are systems that classify user inputs and system outputs for the purposes of steering the underlying model, or monitoring and filtering its responses.
 Sometimes, these methods are used for usage monitoring, as is the case with Anthropic's Clio \cite{tamkin2024clioprivacypreservinginsightsrealworld, handa2025economictasksperformedai}, other times, they are used for safety, as with Llama Guard \cite{inan2023llamaguardllmbasedinputoutput} and Constitutional Classifiers \cite{sharma2025constitutionalclassifiersdefendinguniversal}.
 However, similarly to safety training, the ``real-world'' context these methods work with is currently inferred mostly from user-supplied content and thus untrustworthy and vulnerable to attacks, as evidenced by the many jailbreaks that successfully target current production systems \cite{zhang2025outputconstraintsattacksurface}.
 Nevertheless, these methods could be modified to incorporate external contextual information, potentially serving as a foundation for more trustworthy, contextual safety mechanisms. We discuss this option in \cref{section:content-classification}.
