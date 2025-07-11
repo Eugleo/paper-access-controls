@@ -128,8 +128,8 @@
 antibodies?}
 
 Is this question safe to answer?
-While some user requests and large language model outputs are clearly benign or harmful, many fall in the grey zone in the middle, as illustrated in \cref{figure:main}.
-In the grey zone, the harmfulness of a request depends not on its content, but on its \emph{real-world context}: who made it and for what purpose.
+While some user requests and large language model outputs are clearly benign or harmful, many fall in the grey zone in the middle, including the question above.
+In the grey zone, the harmfulness of a request depends not on its content, but on its \emph{real-world context}: who made it and for what purpose (as illustrated in \cref{figure:main}).
 
 \begin{figure}[t]
   \vskip 0.2in
@@ -177,7 +177,7 @@ Through these attacks, adversaries exploit under-refusals in a way that compromi
 
 Since whether a grey-zone request should be refused depends on who made it and why, preventing both over-refusals and under-refusals requires access to real-world context.
 This means that the traditional focus on resilience against jailbreak and prompt injections is orthogonal to this problem.
-Instead, we evaluate three approaches from the AI safety literature to see how sensitive they are to contextual information, and whether their sources of real-world context are trustworthy --- that is, hard to manipulate by an adversary.
+Instead, we evaluate three approaches from the AI safety literature to see how sensitive they are to contextual information, and whether their sources of real-world context are trustworthy --- that is, hard to manipulate.
 
 \subsection{Unlearning: Non-Contextual Removal of Concepts}
 
@@ -303,7 +303,9 @@ However, this approach proves impractical for real deployment, as model provider
       (2)~During the forward pass, the model detects the question is about virology and activates its virology expert module that contains relevant knowledge.
       (3)~The activation of the expert is observed by an external mechanism that (4)~checks in the company's database if the user has the required authorization to access virology knowledge.
       (5)~Since they don't, the model is stopped.
-    If they did, the model would be allowed to give an answer.}
+      If they did, the model would be allowed to give an answer.
+    }
+    \label{figure:experts}
   \end{center}
   \vskip -0.2in
 \end{figure}
@@ -311,7 +313,7 @@ However, this approach proves impractical for real deployment, as model provider
 \paragraph{Specialized Expert Modules}
 
 Instead of maintaining separate models, model providers could use a single model with separate expert modules that activate when their specialized knowledge is required.
-\Cref{figure:main} illustrates how this approach might work when a user poses a grey-zone question.
+\Cref{figure:experts} illustrates how this approach might work when a user poses a grey-zone question.
 
 To implement this, we could concentrate distributed knowledge into specialized expert modules using a novel method that would combine UNDO \cite{lee2025distillationrobustifiesunlearning} and gradient routing \cite{cloud2024gradientroutingmaskinggradients}.
 The approach would first unlearn knowledge belonging to content categories from the base model, then distil this unlearned model into a new model with expert modules for each category.
