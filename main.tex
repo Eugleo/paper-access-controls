@@ -114,12 +114,7 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-  AI safety systems face the dual-use dilemma: it can be unclear whether to refuse certain requests, since they could be either harmless or harmful depending on who made them and why.
-  Determining this requires examining their real-world context, but current safety systems cannot access this contextual information.
-  Instead, they make arbitrary decisions that end up hurting both utility and safety: they sometimes refuse legitimate queries and other times fail to refuse harmful ones.
-  To address this, we propose a conceptual framework based on access controls in which only verified users can access dual-use outputs.
-  We describe the framework's components, analyse its feasibility, and explain how it addresses both over-refusals and under-refusals.
-  While only a high-level proposal, our work takes the first step toward enabling more nuanced safety decisions: with better tools for managing dual-use content, model providers could enable users to access more capabilities without sacrificing safety, and give regulators new options for more targeted policies.
+  AI safety systems face the dual-use dilemma. It is unclear whether to answer dual-use requests, since the same query could be either harmless or harmful depending on who made it and why. To make better decisions, such systems would need to examine requests' real-world context, but currently, they lack access to this information. Instead, they sometimes end up making arbitrary choices that result in refusing legitimate queries and allowing harmful ones, which hurts both utility and safety. To address this, we propose a conceptual framework based on access controls where only verified users can access dual-use outputs. We describe the framework's components, analyse its feasibility, and explain how it addresses both over-refusals and under-refusals. While only a high-level proposal, our work takes the first step toward giving model providers more granular tools for managing dual-use content. Such tools would enable users to access more capabilities without sacrificing safety, and offer regulators new options for targeted policies.
 \end{abstract}
 
 \section{Introduction} \label{section:introduction}
